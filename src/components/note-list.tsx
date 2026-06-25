@@ -32,7 +32,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
     // 2. 태그 필터 (다중 선택된 태그를 모두 포함해야 함 - AND 조건)
     if (filter.selectedTags.length > 0) {
       for (const tagName of filter.selectedTags) {
-        const tagCode = codes.find(c => c.group === 'tag' && c.name === tagName);
+        const tagCode = codes.find(c => c.group !== '프로젝트' && c.name === tagName);
         if (!tagCode || !note.codeIds.includes(tagCode.id)) {
           return false;
         }
@@ -117,7 +117,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
             .filter((c): c is Code => !!c);
             
           const projectCodes = noteCodes.filter(c => c.group === '프로젝트');
-          const tagCodes = noteCodes.filter(c => c.group === 'tag');
+          const tagCodes = noteCodes.filter(c => c.group !== '프로젝트');
 
           return (
             <div

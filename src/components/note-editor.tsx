@@ -163,7 +163,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       setSelectedProjectId(projectCode ? projectCode.id : '');
 
       const noteTags = codes
-        .filter(c => c.group === 'tag' && currentNote.codeIds.includes(c.id))
+        .filter(c => c.group !== '프로젝트' && currentNote.codeIds.includes(c.id))
         .map(c => c.id);
       setSelectedTagIds(noteTags);
     } else {

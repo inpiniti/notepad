@@ -54,8 +54,8 @@ export function Dialog({ isOpen, onClose, title, children, className }: DialogPr
       >
         {/* 헤더 */}
         {title ? (
-          <div className="flex items-center justify-between mb-4 shrink-0">
-            <h3 className="text-lg font-semibold text-slate-900 tracking-tight">
+          <div className="flex items-center justify-between px-4.5 pt-4.5 pb-1 shrink-0">
+            <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
               {title}
             </h3>
             <button

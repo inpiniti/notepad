@@ -11,8 +11,8 @@ import {
   FileText, 
   Folder, 
   Tag, 
-  BookOpen, 
-  ServerCrash
+  BookOpen,
+  X
 } from 'lucide-react';
 
 export default function App() {
@@ -21,7 +21,9 @@ export default function App() {
     filter, 
     activeNoteId, 
     setActiveNoteId, 
-    isOffline 
+    isOffline,
+    setSelectedProject,
+    toggleSelectedTag
   } = useStore();
 
   // 모바일 오버레이 상태
@@ -34,7 +36,9 @@ export default function App() {
   }, [initialize]);
 
   const handleOpenEditorMobile = () => {
-    setIsMobileEditorOpen(true);
+    if (window.innerWidth < 1024) {
+      setIsMobileEditorOpen(true);
+    }
   };
 
   const handleCloseEditorMobile = () => {
@@ -42,53 +46,97 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen bg-slate-50/50 flex flex-col antialiased overflow-hidden">
+    <div className="h-screen bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-100">
-            <BookOpen className="w-5 h-5" />
+      <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white shadow-xs">
+            <BookOpen className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-900 tracking-tight">Smart Notepad</h1>
-            <p className="text-[10px] text-slate-400 font-medium">상세코드 매핑 & 실시간 동기화 노트</p>
+            <h1 className="text-xs font-bold text-slate-950 tracking-tight">Smart Notepad</h1>
+            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">상세코드 매핑 & 실시간 동기화 노트</p>
           </div>
         </div>
 
-        {/* 연결 상태 뱃지 */}
-        <div className="flex items-center gap-2">
-          {isOffline ? (
-            <Badge variant="destructive" className="flex items-center gap-1 text-[10px] font-semibold py-0.5 px-2">
-              <ServerCrash className="w-3 h-3" />
-              <span>로컬 스토리지 모드</span>
-            </Badge>
-          ) : (
-            <Badge className="bg-indigo-50 border border-indigo-100 text-indigo-700 hover:bg-indigo-50 flex items-center gap-1 text-[10px] font-semibold py-0.5 px-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-              <span>Supabase 연동 완료</span>
+        {/* 데스크탑용 선택된 필터 배지 리스트 (Supabase 연동 상태 배지 대체) */}
+        <div className="hidden md:flex items-center gap-1.5 shrink-0 max-w-[60%] select-none">
+          {filter.selectedProject !== '전체' && (
+            <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-indigo-50/30 text-indigo-700">
+              <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-indigo-500/80" />
+              <span className="max-w-[100px] truncate">{filter.selectedProject}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedProject('전체');
+                }}
+                className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors shrink-0"
+                title="프로젝트 필터 해제"
+              >
+                <X className="w-2 h-2" />
+              </button>
             </Badge>
           )}
+
+          {filter.selectedTags.map(tag => (
+            <Badge key={tag} variant="tag" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-emerald-50/30 text-emerald-700">
+              <Tag className="w-2.5 h-2.5 mr-1 shrink-0 text-emerald-500/80" />
+              <span className="max-w-[100px] truncate">{tag}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSelectedTag(tag);
+                }}
+                className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors shrink-0"
+                title="태그 필터 해제"
+              >
+                <X className="w-2 h-2" />
+              </button>
+            </Badge>
+          ))}
         </div>
       </header>
 
       {/* 2. 메인 컨텐츠 영역 */}
-      <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 py-4 flex flex-col gap-4 sm:gap-6 overflow-hidden">
+      <main className="flex-1 w-full flex flex-col overflow-hidden">
         {/* 모바일 퀵 필터 바 */}
-        <div className="md:hidden flex items-center justify-between bg-white border border-slate-100 p-3 rounded-2xl shadow-xs">
-          <div className="flex items-center gap-1.5 overflow-x-auto shrink-0 max-w-[70%] scrollbar-none py-0.5">
-            <Badge variant="project" className="text-[10px]">
-              <Folder className="w-2.5 h-2.5 mr-1" />
-              {filter.selectedProject}
+        <div className="md:hidden flex items-center justify-between bg-white border-b border-slate-200 p-3 shadow-xs shrink-0 gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto flex-1 min-w-0 scrollbar-none py-0.5">
+            <Badge variant="project" className="text-[10px] rounded-md whitespace-nowrap shrink-0 flex items-center pr-1.5">
+              <Folder className="w-2.5 h-2.5 mr-1 shrink-0" />
+              <span>{filter.selectedProject}</span>
+              {filter.selectedProject !== '전체' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedProject('전체');
+                  }}
+                  className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-450 hover:text-slate-700 transition-colors shrink-0"
+                  title="프로젝트 필터 해제"
+                >
+                  <X className="w-2 h-2" />
+                </button>
+              )}
             </Badge>
             {filter.selectedTags.length > 0 ? (
               filter.selectedTags.map(tag => (
-                <Badge key={tag} variant="tag" className="text-[10px]">
-                  <Tag className="w-2.5 h-2.5 mr-1" />
-                  {tag}
+                <Badge key={tag} variant="tag" className="text-[10px] rounded-md whitespace-nowrap shrink-0 flex items-center pr-1.5">
+                  <Tag className="w-2.5 h-2.5 mr-1 shrink-0" />
+                  <span>{tag}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSelectedTag(tag);
+                    }}
+                    className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-450 hover:text-slate-700 transition-colors shrink-0"
+                    title="태그 필터 해제"
+                  >
+                    <X className="w-2 h-2" />
+                  </button>
                 </Badge>
               ))
             ) : (
-              <Badge variant="secondary" className="text-[10px] text-slate-400 border-dashed">
+              <Badge variant="secondary" className="text-[10px] text-slate-400 border-dashed rounded-md whitespace-nowrap shrink-0">
                 태그 없음
               </Badge>
             )}
@@ -97,31 +145,31 @@ export default function App() {
             variant="outline"
             size="sm"
             onClick={() => setIsMobileFilterOpen(true)}
-            className="flex items-center gap-1.5 h-8 text-xs font-semibold rounded-xl text-slate-600"
+            className="flex items-center gap-1.5 h-8 text-xs font-semibold rounded-lg text-slate-600 whitespace-nowrap shrink-0"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
             <span>상세 필터</span>
           </Button>
         </div>
 
         {/* 메인 레이아웃 본체 */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[280px_380px_1fr] gap-6 overflow-hidden h-full">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-[260px_1fr] lg:grid-cols-[260px_360px_1fr] overflow-hidden h-full divide-x divide-slate-200">
           {/* 1) 좌측 필터 패널 (데스크탑 뷰 전용) */}
-          <section className="hidden md:flex flex-col bg-white border border-slate-100 rounded-3xl p-5 shadow-xs overflow-y-auto">
+          <section className="hidden md:flex flex-col bg-slate-50/50 overflow-hidden">
             <FilterPanel />
           </section>
 
           {/* 2) 중앙 노트 목록 패널 */}
-          <section className="flex flex-col bg-white border border-slate-100 rounded-3xl p-5 shadow-xs overflow-hidden">
+          <section className="flex flex-col bg-white overflow-hidden">
             <NoteList onOpenEditorMobile={handleOpenEditorMobile} />
           </section>
 
           {/* 3) 우측 노트 상세/에디터 패널 (데스크탑 뷰 전용) */}
-          <section className="hidden lg:flex flex-col bg-white border border-slate-100 rounded-3xl p-6 shadow-xs overflow-hidden">
+          <section className="hidden lg:flex flex-col bg-white overflow-hidden">
             {activeNoteId || activeNoteId === null ? (
               <NoteEditor />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 text-center bg-slate-50/20 border border-dashed border-slate-100 rounded-2xl">
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 text-center bg-slate-50/20 border border-dashed border-slate-200 rounded-lg m-5">
                 <FileText className="w-12 h-12 text-slate-300 mb-3" />
                 <h4 className="font-semibold text-slate-700 text-base">노트가 선택되지 않았습니다</h4>
                 <p className="text-xs text-slate-400 mt-1 max-w-[240px] leading-relaxed">
@@ -140,18 +188,17 @@ export default function App() {
         isOpen={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
         title="상세 필터 설정"
+        className="p-0 sm:p-0 overflow-hidden"
       >
-        <div className="py-2">
-          <FilterPanel 
-            isMobileDrawer={true} 
-            onCloseMobileDrawer={() => setIsMobileFilterOpen(false)} 
-          />
-        </div>
+        <FilterPanel 
+          isMobileDrawer={true} 
+          onCloseMobileDrawer={() => setIsMobileFilterOpen(false)} 
+        />
       </Dialog>
 
       {/* 나. 모바일 에디터 전체화면 오버레이 (바텀시트 대신 100% 풀스크린 적용) */}
       {isMobileEditorOpen && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col w-full h-screen overflow-hidden p-5 animate-slideUp">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col w-full h-screen overflow-hidden animate-slideUp">
           <div className="flex-1 min-h-0 flex flex-col">
             <NoteEditor onCloseMobile={handleCloseEditorMobile} />
           </div>

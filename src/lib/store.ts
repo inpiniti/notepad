@@ -226,7 +226,7 @@ export const useStore = create<StoreState>((set, get) => ({
           updated_at,
           note_codes (code_id)
         `)
-        .order('updated_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 

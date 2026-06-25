@@ -131,19 +131,24 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
                     }`
               }`}
             >
-              {/* 좌측: 제목 & 첨부파일 아이콘 */}
-              <div className="flex items-center gap-1.5 min-w-0">
-                <h4 className={`text-xs truncate transition-colors ${
-                  isSelected ? 'text-indigo-900 font-bold' : 'text-slate-700 font-medium'
-                }`}>
-                  {note.title.trim() === '' ? '제목 없음' : note.title}
-                </h4>
-                {note.attachments.length > 0 && (
-                  <div className="flex items-center gap-0.5 text-slate-400 shrink-0" title="첨부파일 있음">
-                    <Paperclip className="w-3 h-3" />
-                    <span className="text-[8px] font-bold">{note.attachments.length}</span>
-                  </div>
-                )}
+              {/* 좌측: 제목 & 첨부파일 아이콘 & 작성일 */}
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <h4 className={`text-xs truncate transition-colors ${
+                    isSelected ? 'text-indigo-900 font-bold' : 'text-slate-700 font-medium'
+                  }`}>
+                    {note.title.trim() === '' ? '제목 없음' : note.title}
+                  </h4>
+                  {note.attachments.length > 0 && (
+                    <div className="flex items-center gap-0.5 text-slate-400 shrink-0" title="첨부파일 있음">
+                      <Paperclip className="w-3 h-3" />
+                      <span className="text-[8px] font-bold">{note.attachments.length}</span>
+                    </div>
+                  )}
+                </div>
+                <span className="text-[9px] text-slate-400 mt-0.5 font-normal leading-none">
+                  {formatDate(note.created)}
+                </span>
               </div>
 
               {/* 우측: 프로젝트 & 태그 배지 리스트 */}

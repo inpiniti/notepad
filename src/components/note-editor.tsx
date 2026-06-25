@@ -284,6 +284,13 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     }
   };
 
+  // 날짜 포맷팅 헬퍼
+  const formatDate = (isoString: string) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  };
+
   return (
     <div className="flex flex-col h-full bg-white text-slate-800">
       {/* 에디터 탑 바 */}
@@ -297,9 +304,16 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
               <ArrowLeft className="w-4 h-4" />
             </button>
           )}
-          <h3 className="font-semibold text-slate-900 text-xs">
-            {activeNoteId ? '노트 수정' : '새 노트 작성'}
-          </h3>
+          <div className="flex flex-col">
+            <h3 className="font-semibold text-slate-900 text-xs leading-tight">
+              {activeNoteId ? '노트 수정' : '새 노트 작성'}
+            </h3>
+            {currentNote && (
+              <span className="text-[9px] text-slate-400 font-normal leading-none mt-1">
+                작성: {formatDate(currentNote.created)} {currentNote.updated !== currentNote.created && `(수정: ${formatDate(currentNote.updated)})`}
+              </span>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-1">

@@ -462,6 +462,8 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
             </div>
           );
         })}
+        {/* 진행(마지막 그룹) 하단에도 경계선 추가 */}
+        <div className="border-t border-slate-200/70 -ml-4 -mr-3 mt-3 shrink-0" />
       </div>
     </div>
   );

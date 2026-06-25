@@ -123,10 +123,10 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
             <div
               key={note.id}
               onClick={() => handleNoteSelect(note.id)}
-              className={`py-2.5 px-3 border-l-2 transition-all cursor-pointer group flex items-center justify-between gap-3 ${
+              className={`py-2.5 px-3 border-l-2 border-y transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                 isSelected
-                  ? 'border-l-indigo-600 bg-indigo-50/40 text-slate-900 font-semibold'
-                  : 'border-l-transparent hover:bg-slate-50 text-slate-600'
+                  ? 'border-l-indigo-600 border-y-indigo-100 bg-indigo-50/40 text-slate-900 font-semibold'
+                  : 'border-l-transparent border-y-transparent hover:bg-slate-50 text-slate-600'
               }`}
             >
               {/* 좌측: 제목 & 첨부파일 아이콘 */}

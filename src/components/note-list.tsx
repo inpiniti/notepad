@@ -108,7 +108,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
 
       {/* 노트 카드 목록 스크롤 뷰 */}
       <div className="flex-1 overflow-y-auto">
-        {filteredNotes.map((note) => {
+        {filteredNotes.map((note, index) => {
           const isSelected = note.id === activeNoteId;
           
           // 이 노트가 가지고 있는 프로젝트와 태그 매핑 코드들을 추출
@@ -126,7 +126,9 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
               className={`py-2.5 px-3 border-l-2 border-t border-b transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                 isSelected
                   ? 'border-l-indigo-600 border-t-indigo-100 border-b-indigo-100 bg-indigo-50/40 text-slate-900 font-semibold'
-                  : 'border-l-transparent border-t-transparent border-b-slate-100 hover:bg-slate-50 text-slate-600'
+                  : `border-l-transparent border-b-slate-100 hover:bg-slate-50 text-slate-600 ${
+                      index === 0 ? 'border-t-slate-100' : 'border-t-transparent'
+                    }`
               }`}
             >
               {/* 좌측: 제목 & 첨부파일 아이콘 */}

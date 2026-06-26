@@ -29,9 +29,10 @@
 }
 
 body {
-  background: var(--background);
+  background: #ffffff; /* iOS 바운스 스크롤 시 빈 공간이 검게 보이는 현상 방지 */
   color: var(--foreground);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overscroll-behavior-y: none; /* iOS 화면 전체가 밀려 올라가는 현상(Elastic Scroll) 방지 */
 }
 
 /* 프리미엄 모던 스크롤바 */

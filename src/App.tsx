@@ -69,7 +69,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-[100dvh] w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
+    <div className="fixed inset-0 w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export default function App() {
 
       {/* 나. 모바일 에디터 전체화면 오버레이 */}
       {isMobileEditorOpen && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col w-full h-[100dvh] overflow-hidden animate-slideUp">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col w-full overflow-hidden animate-slideUp">
           <div className="flex-1 min-h-0 flex flex-col">
             <NoteEditor onCloseMobile={handleCloseEditorMobile} />
           </div>

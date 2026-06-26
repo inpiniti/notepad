@@ -718,30 +718,12 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   setSelectedProject: (project) => {
-    // 프로젝트 필터링 방식을 selectedTags 연동 방식으로 전환하여 단일/다중 동기화
-    if (project === '전체') {
-      set(state => {
-        const projectCodeNames = state.codes
-          .filter(c => c.group === '프로젝트')
-          .map(c => c.name);
-        return {
-          filter: {
-            ...state.filter,
-            selectedProject: '전체',
-            selectedTags: state.filter.selectedTags.filter(t => !projectCodeNames.includes(t))
-          }
-        };
-      });
-    } else {
-      set(state => ({
-        filter: {
-          ...state.filter,
-          selectedProject: project
-        }
-      }));
-      // toggleSelectedTag 호출로 단일선택 규칙을 강제 적용
-      get().toggleSelectedTag(project);
-    }
+    set(state => ({
+      filter: {
+        ...state.filter,
+        selectedProject: project
+      }
+    }));
   },
 
   toggleSelectedTag: (tag) => {
@@ -749,6 +731,16 @@ export const useStore = create<StoreState>((set, get) => ({
       // 1. 선택하려는 태그의 group을 codes에서 탐색
       const targetCode = state.codes.find(c => c.name === tag);
       if (!targetCode) return {};
+
+      // 프로젝트 그룹인 경우 toggleSelectedTag 대신 setSelectedProject의 역할을 하도록 분기
+      if (targetCode.group === '프로젝트') {
+        return {
+          filter: {
+            ...state.filter,
+            selectedProject: state.filter.selectedProject === tag ? '전체' : tag
+          }
+        };
+      }
 
       // 2. 해당 group의 isMultiSelect 설정을 탐색 (기본값 true)
       const groupConfig = state.codeGroups.find(cg => cg.name === targetCode.group);
@@ -775,19 +767,9 @@ export const useStore = create<StoreState>((set, get) => ({
         }
       }
 
-      // 호환성 유지: '프로젝트' 그룹 단일 선택 변화 시 selectedProject 문자열 상태도 동기화
-      let nextProject = state.filter.selectedProject;
-      if (targetCode.group === '프로젝트') {
-        const selectedProj = state.codes
-          .filter(c => c.group === '프로젝트' && nextTags.includes(c.name))
-          .map(c => c.name)[0];
-        nextProject = selectedProj || '전체';
-      }
-
       return {
         filter: {
           ...state.filter,
-          selectedProject: nextProject,
           selectedTags: nextTags
         }
       };

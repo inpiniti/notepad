@@ -3,7 +3,7 @@ import { useStore, Code } from '@/lib/store';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
-import { Plus, Trash2, Folder, Tag, Filter, FolderPlus, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Folder, Tag, Filter, FolderPlus, ChevronDown, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface FilterPanelProps {
   isMobileDrawer?: boolean;
@@ -13,11 +13,13 @@ interface FilterPanelProps {
 export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: FilterPanelProps) {
   const {
     codes,
+    codeGroups,
     filter,
     setSelectedProject,
     toggleSelectedTag,
     addCode,
     deleteCode,
+    updateCodeGroup,
     clearFilters,
     showToast
   } = useStore();
@@ -25,6 +27,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
   // 분류 생성 및 개별 추가용 상태
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCodeName, setNewCodeName] = useState('');
+  const [newCategoryMulti, setNewCategoryMulti] = useState(true); // 기본값: 다중 선택
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -89,9 +92,14 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
     setErrorMsg(null);
     try {
       await addCode(newCategoryName.trim(), newCodeName.trim());
+      // 단일/다중 선택 설정도 같이 저장
+      await updateCodeGroup(newCategoryName.trim(), newCategoryMulti);
       setNewCodeName('');
+      setNewCategoryName('');
+      setNewCategoryMulti(true);
       setErrorMsg(null);
       setShowAddCategory(false);
+      showToast(`"${newCategoryName.trim()}" 분류가 생성되었습니다.`, 'success');
     } catch (err: any) {
       console.error(err);
       const message = err?.message || '';
@@ -216,6 +224,21 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                   }
                 }}
               />
+              {/* 단일 / 다중 선택 토글 */}
+              <button
+                type="button"
+                onClick={() => setNewCategoryMulti(prev => !prev)}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-semibold border transition-colors ${
+                  newCategoryMulti
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                    : 'bg-amber-50 border-amber-200 text-amber-700'
+                }`}
+              >
+                {newCategoryMulti
+                  ? <ToggleRight className="w-3.5 h-3.5" />
+                  : <ToggleLeft  className="w-3.5 h-3.5" />}
+                {newCategoryMulti ? '다중 선택 가능' : '단일 선택만 허용'}
+              </button>
             </div>
             {errorMsg && (
               <p className="text-[9px] text-red-500 font-medium leading-normal bg-red-50 border border-red-100 p-1.5 rounded-md break-all">
@@ -386,19 +409,49 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                   }`} />
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{groupName}</span>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isExpanded) {
-                      setExpandedGroups(prev => ({ ...prev, [groupName]: true }));
-                    }
-                    setActiveAddGroup(activeAddGroup === groupName ? null : groupName);
-                    setNewItemName('');
-                  }}
-                  className="p-0.5 rounded hover:bg-slate-200 text-slate-500 transition-colors shrink-0"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
+              <div className="flex items-center gap-1">
+                  {/* 단일/다중 선택 전환 버튼 */}
+                  {(() => {
+                    const group = codeGroups.find(g => g.name === groupName);
+                    const isMulti = group ? group.isMultiSelect : true;
+                    return (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateCodeGroup(groupName, !isMulti);
+                          showToast(
+                            `"${groupName}"을 ${!isMulti ? '다중 선택' : '단일 선택'}으로 변경했습니다.`,
+                            'info'
+                          );
+                        }}
+                        title={isMulti ? '현재: 다중 선택 (클릭 시 단일 선택으로 변경)' : '현재: 단일 선택 (클릭 시 다중 선택으로 변경)'}
+                        className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-semibold border transition-colors ${
+                          isMulti
+                            ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100'
+                            : 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100'
+                        }`}
+                      >
+                        {isMulti
+                          ? <ToggleRight className="w-3 h-3" />
+                          : <ToggleLeft  className="w-3 h-3" />}
+                        <span>{isMulti ? '다중' : '단일'}</span>
+                      </button>
+                    );
+                  })()}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isExpanded) {
+                        setExpandedGroups(prev => ({ ...prev, [groupName]: true }));
+                      }
+                      setActiveAddGroup(activeAddGroup === groupName ? null : groupName);
+                      setNewItemName('');
+                    }}
+                    className="p-0.5 rounded hover:bg-slate-200 text-slate-500 transition-colors shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               {isExpanded && (

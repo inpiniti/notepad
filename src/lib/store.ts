@@ -60,6 +60,7 @@ interface StoreState {
   deleteNote: (id: string) => Promise<void>;
   addCode: (group: string, name: string) => Promise<Code>;
   deleteCode: (id: string) => Promise<void>;
+  updateCodeGroup: (groupName: string, isMultiSelect: boolean) => Promise<void>;
   logout: () => Promise<void>;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   hideToast: () => void;
@@ -277,6 +278,32 @@ export const useStore = create<StoreState>((set, get) => ({
         { name: '프로젝트', isMultiSelect: false },
         { name: 'tag', isMultiSelect: true }
       ] });
+    }
+  },
+
+  // 분류 그룹의 단일/다중 선택 여부를 업데이트
+  updateCodeGroup: async (groupName: string, isMultiSelect: boolean) => {
+    // 로컬 상태 즉시 반영 (낙관적 업데이트)
+    set(state => ({
+      codeGroups: state.codeGroups.map(g =>
+        g.name === groupName ? { ...g, isMultiSelect } : g
+      )
+    }));
+
+    if (get().isOffline) return;
+    const user = get().user;
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('code_groups')
+        .upsert(
+          { name: groupName, is_multi_select: isMultiSelect, user_id: user.id },
+          { onConflict: 'name' }
+        );
+      if (error) throw error;
+    } catch (e) {
+      console.warn('code_groups 업데이트 실패, 로컬 상태만 반영됨', e);
     }
   },
 

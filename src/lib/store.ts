@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase, getSupabaseConfig, updateSupabaseConfig } from './supabase';
+import { User, Session } from '@supabase/supabase-js';
 
 export interface Code {
   id: string;
@@ -18,13 +19,19 @@ export interface Note {
 }
 
 interface FilterState {
-  selectedProject: string; // '전체' 또는 특정 프로젝트 name
-  selectedTags: string[]; // 선택된 태그 name 목록
+  selectedProject: string; // '전체' 또는 특정 프로젝트 name (기존 호환성 유지)
+  selectedTags: string[]; // 선택된 태그 name 목록 (프로젝트 포함 통합 태그)
+}
+
+export interface CodeGroup {
+  name: string;
+  isMultiSelect: boolean;
 }
 
 interface StoreState {
   notes: Note[];
   codes: Code[];
+  codeGroups: CodeGroup[]; // 각 카테고리(그룹)별 다중선택 설정 상태
   filter: FilterState;
   activeNoteId: string | null;
   isOffline: boolean;
@@ -32,10 +39,20 @@ interface StoreState {
   supabaseAnonKey: string;
   isLoading: boolean;
   
+  // Auth States
+  user: User | null;
+  session: Session | null;
+  authInitialized: boolean;
+
+  // Toast States
+  toastMessage: string | null;
+  toastType: 'success' | 'error' | 'info';
+
   // Actions
   setSupabaseConfig: (url: string, key: string) => void;
   initialize: () => Promise<void>;
   initializeOffline: () => void;
+  fetchCodeGroups: () => Promise<void>; // 카테고리 설정 페치
   fetchCodes: () => Promise<void>;
   fetchNotes: () => Promise<void>;
   addNote: (title: string, content: string, codeIds: string[], files?: File[]) => Promise<void>;
@@ -43,6 +60,9 @@ interface StoreState {
   deleteNote: (id: string) => Promise<void>;
   addCode: (group: string, name: string) => Promise<Code>;
   deleteCode: (id: string) => Promise<void>;
+  logout: () => Promise<void>;
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  hideToast: () => void;
   
   // Filter & Active actions
   setSelectedProject: (project: string) => void;
@@ -121,6 +141,10 @@ const DEFAULT_NOTES: Note[] = [
 export const useStore = create<StoreState>((set, get) => ({
   notes: [],
   codes: [],
+  codeGroups: [
+    { name: '프로젝트', isMultiSelect: false },
+    { name: 'tag', isMultiSelect: true }
+  ],
   filter: {
     selectedProject: '전체',
     selectedTags: []
@@ -130,6 +154,15 @@ export const useStore = create<StoreState>((set, get) => ({
   supabaseUrl: typeof window !== 'undefined' ? getSupabaseConfig().url : '',
   supabaseAnonKey: typeof window !== 'undefined' ? getSupabaseConfig().key : '',
   isLoading: false,
+  
+  // Toast 초기값
+  toastMessage: null,
+  toastType: 'info',
+  
+  // Auth 상태 초기값
+  user: null,
+  session: null,
+  authInitialized: false,
 
   setSupabaseConfig: (url, key) => {
     updateSupabaseConfig(url, key);
@@ -148,25 +181,49 @@ export const useStore = create<StoreState>((set, get) => ({
 
     if (isPlaceholder) {
       console.warn('Supabase URL/Key가 설정되지 않았습니다. 오프라인(로컬 스토리지) 모드로 전환합니다.');
-      set({ isOffline: true });
+      set({ isOffline: true, authInitialized: true });
       get().initializeOffline();
       return;
     }
 
     try {
-      // Supabase 연결 헬스 체크 (임의의 테이블 조회 시도)
-      const { error } = await supabase.from('codes').select('id').limit(1);
-      
-      if (error) {
-        throw new Error(error.message);
+      // 1. Auth 세션 초기화 및 상태 변화 리스너 바인딩
+      const { data: { session } } = await supabase.auth.getSession();
+      set({ 
+        session, 
+        user: session?.user ?? null,
+        authInitialized: true
+      });
+
+      // 인증 상태 변경 리스너 등록
+      supabase.auth.onAuthStateChange(async (_event, newSession) => {
+        set({ 
+          session: newSession, 
+          user: newSession?.user ?? null 
+        });
+        
+        if (newSession?.user) {
+          set({ isOffline: false });
+          await get().fetchCodeGroups();
+          await get().fetchCodes();
+          await get().fetchNotes();
+        } else {
+          set({ notes: [], codes: [] });
+        }
+      });
+
+      // 최초 로그인 상태라면 즉시 페치
+      if (session?.user) {
+        set({ isOffline: false });
+        await get().fetchCodeGroups();
+        await get().fetchCodes();
+        await get().fetchNotes();
+      } else {
+        set({ isLoading: false });
       }
-      
-      set({ isOffline: false });
-      await get().fetchCodes();
-      await get().fetchNotes();
     } catch (e) {
       console.warn('Supabase 서버 통신 실패. 로컬 스토리지 모드로 구동합니다.', e);
-      set({ isOffline: true });
+      set({ isOffline: true, authInitialized: true });
       get().initializeOffline();
     } finally {
       set({ isLoading: false });
@@ -190,12 +247,44 @@ export const useStore = create<StoreState>((set, get) => ({
     set({ codes: localCodes, notes: localNotes });
   },
 
+  fetchCodeGroups: async () => {
+    if (get().isOffline) return;
+    const user = get().user;
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('code_groups')
+        .select('*')
+        .or(`user_id.eq.${user.id},user_id.is.null`);
+
+      if (error) throw error;
+
+      const mappedGroups = data.map((cg: any) => ({
+        name: cg.name,
+        isMultiSelect: cg.is_multi_select
+      }));
+      set({ codeGroups: mappedGroups });
+    } catch (e) {
+      console.warn('Failed to fetch code groups from Supabase, fallback to local default', e);
+      // fallback
+      set({ codeGroups: [
+        { name: '프로젝트', isMultiSelect: false },
+        { name: 'tag', isMultiSelect: true }
+      ] });
+    }
+  },
+
   fetchCodes: async () => {
     if (get().isOffline) return;
+    const user = get().user;
+    if (!user) return;
+
     try {
       const { data, error } = await supabase
         .from('codes')
         .select('*')
+        .or(`user_id.eq.${user.id},user_id.is.null`) // 공유 데이터 또는 자기 데이터 조회
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -213,8 +302,11 @@ export const useStore = create<StoreState>((set, get) => ({
 
   fetchNotes: async () => {
     if (get().isOffline) return;
+    const user = get().user;
+    if (!user) return;
+
     try {
-      // 1. notes와 note_codes(다대다 매핑)를 한 번에 Join 쿼리로 조회
+      // notes와 note_codes(다대다 매핑)를 한 번에 Join 쿼리로 조회
       const { data, error } = await supabase
         .from('notes')
         .select(`
@@ -224,8 +316,10 @@ export const useStore = create<StoreState>((set, get) => ({
           attachments,
           created_at,
           updated_at,
+          user_id,
           note_codes (code_id)
         `)
+        .eq('user_id', user.id) // 로그인 사용자의 노트만 격리 조회
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -250,6 +344,7 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   addNote: async (title, content, codeIds, files = []) => {
+    const user = get().user;
     if (get().isOffline) {
       const newNote: Note = {
         id: 'n_' + Math.random().toString(36).substr(2, 9),
@@ -298,13 +393,18 @@ export const useStore = create<StoreState>((set, get) => ({
       }
 
       // 2. notes 테이블 인서트
+      const notePayload: any = {
+        title,
+        content,
+        attachments: uploadedUrls
+      };
+      if (user) {
+        notePayload.user_id = user.id;
+      }
+
       const { data: noteRecord, error: noteError } = await supabase
         .from('notes')
-        .insert([{
-          title,
-          content,
-          attachments: uploadedUrls
-        }])
+        .insert([notePayload])
         .select()
         .single();
 
@@ -478,6 +578,7 @@ export const useStore = create<StoreState>((set, get) => ({
 
   addCode: async (group, name) => {
     const trimmedName = name.trim();
+    const user = get().user;
     if (get().isOffline) {
       const newCode: Code = {
         id: 'c_' + Math.random().toString(36).substr(2, 9),
@@ -491,12 +592,17 @@ export const useStore = create<StoreState>((set, get) => ({
     }
 
     try {
+      const codePayload: any = {
+        group_name: group,
+        name: trimmedName
+      };
+      if (user) {
+        codePayload.user_id = user.id;
+      }
+
       const { data, error } = await supabase
         .from('codes')
-        .insert([{
-          group_name: group,
-          name: trimmedName
-        }])
+        .insert([codePayload])
         .select()
         .single();
 
@@ -545,24 +651,104 @@ export const useStore = create<StoreState>((set, get) => ({
     }
   },
 
-  setSelectedProject: (project) => {
-    set(state => ({
-      filter: {
-        ...state.filter,
-        selectedProject: project
+  logout: async () => {
+    try {
+      if (!get().isOffline) {
+        await supabase.auth.signOut();
       }
-    }));
+    } catch (e) {
+      console.error('Supabase signOut error', e);
+    } finally {
+      set({ user: null, session: null, notes: [], codes: [] });
+    }
+  },
+
+  showToast: (message, type = 'success') => {
+    set({ toastMessage: message, toastType: type });
+    const activeTimer = (window as any).toastTimer;
+    if (activeTimer) clearTimeout(activeTimer);
+
+    (window as any).toastTimer = setTimeout(() => {
+      get().hideToast();
+    }, 3000);
+  },
+
+  hideToast: () => {
+    set({ toastMessage: null });
+  },
+
+  setSelectedProject: (project) => {
+    // 프로젝트 필터링 방식을 selectedTags 연동 방식으로 전환하여 단일/다중 동기화
+    if (project === '전체') {
+      set(state => {
+        const projectCodeNames = state.codes
+          .filter(c => c.group === '프로젝트')
+          .map(c => c.name);
+        return {
+          filter: {
+            ...state.filter,
+            selectedProject: '전체',
+            selectedTags: state.filter.selectedTags.filter(t => !projectCodeNames.includes(t))
+          }
+        };
+      });
+    } else {
+      set(state => ({
+        filter: {
+          ...state.filter,
+          selectedProject: project
+        }
+      }));
+      // toggleSelectedTag 호출로 단일선택 규칙을 강제 적용
+      get().toggleSelectedTag(project);
+    }
   },
 
   toggleSelectedTag: (tag) => {
     set(state => {
-      const selectedTags = state.filter.selectedTags.includes(tag)
-        ? state.filter.selectedTags.filter(t => t !== tag)
-        : [...state.filter.selectedTags, tag];
+      // 1. 선택하려는 태그의 group을 codes에서 탐색
+      const targetCode = state.codes.find(c => c.name === tag);
+      if (!targetCode) return {};
+
+      // 2. 해당 group의 isMultiSelect 설정을 탐색 (기본값 true)
+      const groupConfig = state.codeGroups.find(cg => cg.name === targetCode.group);
+      const isMulti = groupConfig ? groupConfig.isMultiSelect : true;
+
+      let nextTags = [...state.filter.selectedTags];
+
+      if (isMulti) {
+        // 다중 선택: 토글
+        nextTags = nextTags.includes(tag)
+          ? nextTags.filter(t => t !== tag)
+          : [...nextTags, tag];
+      } else {
+        // 단일 선택: 같은 그룹에 속하는 기존 선택 코드를 제거하고 추가
+        const sameGroupCodeNames = state.codes
+          .filter(c => c.group === targetCode.group)
+          .map(c => c.name);
+
+        nextTags = nextTags.filter(t => !sameGroupCodeNames.includes(t));
+        // 선택을 해제하는 클릭이었을 경우 추가하지 않음
+        const isCurrentlySelected = state.filter.selectedTags.includes(tag);
+        if (!isCurrentlySelected) {
+          nextTags.push(tag);
+        }
+      }
+
+      // 호환성 유지: '프로젝트' 그룹 단일 선택 변화 시 selectedProject 문자열 상태도 동기화
+      let nextProject = state.filter.selectedProject;
+      if (targetCode.group === '프로젝트') {
+        const selectedProj = state.codes
+          .filter(c => c.group === '프로젝트' && nextTags.includes(c.name))
+          .map(c => c.name)[0];
+        nextProject = selectedProj || '전체';
+      }
+
       return {
         filter: {
           ...state.filter,
-          selectedTags
+          selectedProject: nextProject,
+          selectedTags: nextTags
         }
       };
     });

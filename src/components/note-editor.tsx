@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useStore, Code, Note } from '@/lib/store';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -129,7 +129,8 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     updateNote,
     deleteNote,
     setActiveNoteId,
-    isOffline
+    isOffline,
+    showToast
   } = useStore();
 
   // 에디터 상태
@@ -143,6 +144,8 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   
   const currentNote = notes.find(n => n.id === activeNoteId);
   const projects = codes.filter(c => c.group === '프로젝트');
@@ -240,6 +243,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           newFiles,
           existingAttachments
         );
+        showToast('노트가 저장되었습니다.', 'success');
       } else {
         await addNote(
           title,
@@ -247,6 +251,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           combinedCodeIds,
           newFiles
         );
+        showToast('새 노트가 작성되었습니다.', 'success');
         setTitle('');
         setContent('');
         setSelectedProjectId('');
@@ -260,19 +265,62 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       }
     } catch (err: any) {
       setErrorMsg(err.message || '저장 중 오류가 발생했습니다.');
+      showToast('저장에 실패했습니다.', 'error');
     }
   };
 
   // 삭제 요청
   const handleDelete = async () => {
     if (!activeNoteId) return;
-    if (confirm('이 노트를 삭제하시겠습니까?')) {
+    if (!window.confirm('이 노트를 삭제하시겠습니까?\n삭제한 노트는 복구할 수 없습니다.')) return;
+    try {
       await deleteNote(activeNoteId);
-      if (onCloseMobile) {
-        onCloseMobile();
-      }
+      showToast('노트가 삭제되었습니다.', 'success');
+      if (onCloseMobile) onCloseMobile();
+    } catch {
+      showToast('삭제에 실패했습니다.', 'error');
     }
   };
+
+  // 자동 저장 (디바운스 1.5초 - 기존 노트 수정 시에만)
+  useEffect(() => {
+    if (!activeNoteId) return;
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    setAutoSaveStatus('idle');
+    autoSaveTimerRef.current = setTimeout(async () => {
+      try {
+        setAutoSaveStatus('saving');
+        const combinedCodeIds = [
+          ...(selectedProjectId ? [selectedProjectId] : []),
+          ...selectedTagIds
+        ];
+        await updateNote(activeNoteId, title, content, combinedCodeIds, newFiles, existingAttachments);
+        setAutoSaveStatus('saved');
+        setTimeout(() => setAutoSaveStatus('idle'), 2000);
+      } catch {
+        setAutoSaveStatus('idle');
+      }
+    }, 1500);
+    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
+  }, [title, content, selectedProjectId, selectedTagIds]);
+
+  // 클립보드 뛰어넣기 (Ctrl+V / 모바일 붙여넣기)
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const imageFiles: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        const file = items[i].getAsFile();
+        if (file) imageFiles.push(file);
+      }
+    }
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      setNewFiles(prev => [...prev, ...imageFiles]);
+      showToast(`이미지 ${imageFiles.length}개가 첸부파일로 추가되었습니다.`, 'info');
+    }
+  }, [showToast]);
 
 
 
@@ -317,6 +365,14 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         </div>
         
         <div className="flex items-center gap-1">
+          {/* 자동저장 상태 표시 */}
+          {activeNoteId && autoSaveStatus !== 'idle' && (
+            <span className={`text-[9px] mr-1 transition-colors ${
+              autoSaveStatus === 'saving' ? 'text-amber-500' : 'text-emerald-500'
+            }`}>
+              {autoSaveStatus === 'saving' ? '저장 중...' : '저장됨'}
+            </span>
+          )}
           {activeNoteId && (
             <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7 rounded-md" title="삭제">
               <Trash2 className="w-3.5 h-3.5" />
@@ -445,10 +501,11 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             <span>첨부파일</span>
           </label>
 
-          {/* 드래그 앤 드롭 존 */}
+          {/* 드래그 앤 드롭 존 + 클립보드 붙여넣기 */}
           <div
             onDragOver={handleDragOver}
             onDrop={handleDrop}
+            onPaste={handlePaste}
             onClick={() => fileInputRef.current?.click()}
             className="border border-dashed border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/10 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-1 group"
           >
@@ -461,9 +518,9 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             />
             <FileUp className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
             <div className="text-[10px] font-semibold text-slate-600">
-              파일을 마우스로 끌어다 놓거나 클릭하여 선택하세요
+              파일을 마우스로 끌어다 놓거나 클릭하여 선택, 또는 이미지를 클립보드에서 붙여넣기하세요
             </div>
-            <p className="text-[9px] text-slate-400">이미지, 문서 등 형식 제한 없음</p>
+            <p className="text-[9px] text-slate-400">이미지, 문서 등 형식 제한 없음 · Ctrl+V 붙여넣기 지원</p>
           </div>
 
           {/* 첨부된 파일 리스트 */}

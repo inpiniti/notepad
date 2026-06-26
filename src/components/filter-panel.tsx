@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore, Code } from '@/lib/store';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -18,7 +18,8 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
     toggleSelectedTag,
     addCode,
     deleteCode,
-    clearFilters
+    clearFilters,
+    showToast
   } = useStore();
 
   // 분류 생성 및 개별 추가용 상태
@@ -33,10 +34,22 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
   const [newProjectName, setNewProjectName] = useState('');
   const [showAddProject, setShowAddProject] = useState(false);
 
-  // 그룹별 접힘/펼침 상태 관리 (프로젝트만 기본 펼침)
+  // 그룹별 접힘/펼침 상태 관리 (모든 그룹 기본 펼침)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     '프로젝트': true,
   });
+
+  // codes 로드 시 모든 그룹을 기본으로 펼침
+  useEffect(() => {
+    if (codes.length > 0) {
+      const allGroups = Array.from(new Set(codes.map(c => c.group)));
+      setExpandedGroups(prev => {
+        const next: Record<string, boolean> = { ...prev };
+        allGroups.forEach(g => { if (next[g] === undefined) next[g] = true; });
+        return next;
+      });
+    }
+  }, [codes]);
 
   const toggleGroup = (groupName: string) => {
     setExpandedGroups(prev => {
@@ -44,17 +57,23 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
         ...prev,
         [groupName]: !prev[groupName]
       };
-      
-      // 그룹이 접힐 때, 열려 있던 추가 폼이 있다면 닫아준다 (개선 사항 반영)
       if (!nextState[groupName]) {
-        if (groupName === '프로젝트') {
-          setShowAddProject(false);
-        } else if (activeAddGroup === groupName) {
-          setActiveAddGroup(null);
-        }
+        if (groupName === '프로젝트') setShowAddProject(false);
+        else if (activeAddGroup === groupName) setActiveAddGroup(null);
       }
       return nextState;
     });
+  };
+
+  // 삭제 확인 후 deleteCode 호출 헬퍼
+  const handleDeleteCode = async (id: string, name: string) => {
+    if (!window.confirm(`"${name}" 분류를 삭제하시겠습니까?\n이 분류가 적용된 노트에서도 제거됩니다.`)) return;
+    try {
+      await deleteCode(id);
+      showToast(`"${name}" 분류가 삭제되었습니다.`, 'success');
+    } catch {
+      showToast('삭제에 실패했습니다.', 'error');
+    }
   };
 
   // 분류 분리
@@ -251,7 +270,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 }
                 setShowAddProject(!showAddProject);
               }}
-              className="p-0.5 rounded hover:bg-slate-200 text-slate-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+              className="p-0.5 rounded hover:bg-slate-200 text-slate-500 transition-colors shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -334,8 +353,8 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         <span className="truncate">{project.name}</span>
                       </button>
                       <button
-                        onClick={() => deleteCode(project.id)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
+                        onClick={() => handleDeleteCode(project.id, project.name)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
                         title="삭제"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -376,7 +395,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                     setActiveAddGroup(activeAddGroup === groupName ? null : groupName);
                     setNewItemName('');
                   }}
-                  className="p-0.5 rounded hover:bg-slate-200 text-slate-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+                  className="p-0.5 rounded hover:bg-slate-200 text-slate-500 transition-colors shrink-0"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -441,8 +460,8 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                             <span className="truncate">{code.name}</span>
                           </button>
                           <button
-                            onClick={() => deleteCode(code.id)}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
+                            onClick={() => handleDeleteCode(code.id, code.name)}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
                             title="삭제"
                           >
                             <Trash2 className="w-3 h-3" />

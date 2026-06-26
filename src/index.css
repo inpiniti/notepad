@@ -63,3 +63,25 @@ body {
 .active-scale-98:active {
   transform: scale(0.98);
 }
+
+/* 모바일 스크롤 개선 */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS 사파리 textarea 돋보기(zoom) 이중 방지: font-size 16px 이상 강제 */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* 모바일 에디터 슬라이드업 애니메이션 */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0.6; }
+  to   { transform: translateY(0);    opacity: 1;   }
+}
+.animate-slideUp {
+  animation: slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+}

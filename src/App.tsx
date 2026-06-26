@@ -3,6 +3,7 @@ import { useStore } from '@/lib/store';
 import { FilterPanel } from '@/components/filter-panel';
 import { NoteList } from '@/components/note-list';
 import { NoteEditor } from '@/components/note-editor';
+import { AuthForm } from '@/components/auth-form';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +13,11 @@ import {
   Folder, 
   Tag, 
   BookOpen,
-  X
+  X,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  Info
 } from 'lucide-react';
 
 export default function App() {
@@ -23,7 +28,13 @@ export default function App() {
     setActiveNoteId, 
     isOffline,
     setSelectedProject,
-    toggleSelectedTag
+    toggleSelectedTag,
+    user,
+    authInitialized,
+    logout,
+    toastMessage,
+    toastType,
+    hideToast
   } = useStore();
 
   // 모바일 오버레이 상태
@@ -45,8 +56,20 @@ export default function App() {
     setIsMobileEditorOpen(false);
   };
 
+  if (!authInitialized) {
+    return (
+      <div className="h-[100dvh] flex items-center justify-center bg-slate-900">
+        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user && !isOffline) {
+    return <AuthForm />;
+  }
+
   return (
-    <div className="h-screen bg-white flex flex-col antialiased overflow-hidden text-slate-800">
+    <div className="h-[100dvh] w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
@@ -95,6 +118,26 @@ export default function App() {
             </Badge>
           ))}
         </div>
+
+        {/* 로그아웃 및 계정 정보 */}
+        {!isOffline && user && (
+          <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-4 select-none">
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-[9px] font-bold text-slate-450 leading-none">로그인 계정</span>
+              <span className="text-[10px] font-semibold text-slate-600 truncate max-w-[120px] mt-0.5" title={user.email}>
+                {user.email}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="h-6.5 text-[9.5px] border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-bold rounded-lg cursor-pointer px-2"
+            >
+              로그아웃
+            </Button>
+          </div>
+        )}
       </header>
 
       {/* 2. 메인 컨텐츠 영역 */}
@@ -196,12 +239,36 @@ export default function App() {
         />
       </Dialog>
 
-      {/* 나. 모바일 에디터 전체화면 오버레이 (바텀시트 대신 100% 풀스크린 적용) */}
+      {/* 나. 모바일 에디터 전체화면 오버레이 */}
       {isMobileEditorOpen && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col w-full h-screen overflow-hidden animate-slideUp">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col w-full h-[100dvh] overflow-hidden animate-slideUp">
           <div className="flex-1 min-h-0 flex flex-col">
             <NoteEditor onCloseMobile={handleCloseEditorMobile} />
           </div>
+        </div>
+      )}
+
+      {/* 다. 전역 Toast 알림 */}
+      {toastMessage && (
+        <div
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border animate-fadeIn select-none transition-all ${
+            toastType === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : toastType === 'error'
+              ? 'bg-red-50 border-red-200 text-red-800'
+              : 'bg-indigo-50 border-indigo-200 text-indigo-800'
+          }`}
+        >
+          {toastType === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />}
+          {toastType === 'error'   && <XCircle      className="w-4 h-4 text-red-500 shrink-0" />}
+          {toastType === 'info'    && <Info         className="w-4 h-4 text-indigo-500 shrink-0" />}
+          <span>{toastMessage}</span>
+          <button
+            onClick={hideToast}
+            className="ml-1 p-0.5 rounded-full hover:bg-black/10 text-current transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>

@@ -124,6 +124,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
   const {
     notes,
     codes,
+    codeGroups,
     activeNoteId,
     addNote,
     updateNote,
@@ -186,11 +187,33 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     }
   }, [content, activeNoteId]);
 
-  // 태그 선택 토글
+  // 태그 선택 토글 (그룹별 단일/다중 선택 정책 적용)
   const handleTagToggle = (tagId: string) => {
-    setSelectedTagIds(prev => 
-      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
-    );
+    const tagCode = codes.find(c => c.id === tagId);
+    if (!tagCode) return;
+
+    const groupConfig = codeGroups.find(g => g.name === tagCode.group);
+    const isMultiSelect = groupConfig ? groupConfig.isMultiSelect : true;
+
+    setSelectedTagIds(prev => {
+      const alreadySelected = prev.includes(tagId);
+
+      if (alreadySelected) {
+        // 이미 선택된 경우 해제
+        return prev.filter(id => id !== tagId);
+      }
+
+      if (!isMultiSelect) {
+        // 단일 선택 그룹: 같은 그룹의 다른 태그는 모두 해제하고 새로 선택
+        const groupCodeIds = codes
+          .filter(c => c.group === tagCode.group)
+          .map(c => c.id);
+        return [...prev.filter(id => !groupCodeIds.includes(id)), tagId];
+      }
+
+      // 다중 선택 그룹: 그냥 추가
+      return [...prev, tagId];
+    });
   };
 
   // 파일 선택 처리

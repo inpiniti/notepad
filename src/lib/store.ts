@@ -196,11 +196,16 @@ export const useStore = create<StoreState>((set, get) => ({
       });
 
       // 인증 상태 변경 리스너 등록
-      supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      supabase.auth.onAuthStateChange(async (event, newSession) => {
         set({ 
           session: newSession, 
           user: newSession?.user ?? null 
         });
+
+        // 이메일 인증 후 URL에 남는 #access_token= 해시를 깔끔하게 제거
+        if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
         
         if (newSession?.user) {
           set({ isOffline: false });

@@ -144,8 +144,6 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   
   const currentNote = notes.find(n => n.id === activeNoteId);
   const projects = codes.filter(c => c.group === '프로젝트');
@@ -282,28 +280,6 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     }
   };
 
-  // 자동 저장 (디바운스 1.5초 - 기존 노트 수정 시에만)
-  useEffect(() => {
-    if (!activeNoteId) return;
-    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
-    setAutoSaveStatus('idle');
-    autoSaveTimerRef.current = setTimeout(async () => {
-      try {
-        setAutoSaveStatus('saving');
-        const combinedCodeIds = [
-          ...(selectedProjectId ? [selectedProjectId] : []),
-          ...selectedTagIds
-        ];
-        await updateNote(activeNoteId, title, content, combinedCodeIds, newFiles, existingAttachments);
-        setAutoSaveStatus('saved');
-        setTimeout(() => setAutoSaveStatus('idle'), 2000);
-      } catch {
-        setAutoSaveStatus('idle');
-      }
-    }, 1500);
-    return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
-  }, [title, content, selectedProjectId, selectedTagIds]);
-
   // 클립보드 뛰어넣기 (Ctrl+V / 모바일 붙여넣기)
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     const items = e.clipboardData?.items;
@@ -365,14 +341,6 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         </div>
         
         <div className="flex items-center gap-1">
-          {/* 자동저장 상태 표시 */}
-          {activeNoteId && autoSaveStatus !== 'idle' && (
-            <span className={`text-[9px] mr-1 transition-colors ${
-              autoSaveStatus === 'saving' ? 'text-amber-500' : 'text-emerald-500'
-            }`}>
-              {autoSaveStatus === 'saving' ? '저장 중...' : '저장됨'}
-            </span>
-          )}
           {activeNoteId && (
             <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7 rounded-md" title="삭제">
               <Trash2 className="w-3.5 h-3.5" />

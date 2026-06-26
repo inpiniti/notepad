@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useStore, Code, Note } from '@/lib/store';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -129,7 +129,8 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     addNote,
     updateNote,
     deleteNote,
-    setActiveNoteId,
+    requestNavigation,
+    setNavigationInterceptor,
     isOffline,
     showToast
   } = useStore();
@@ -247,8 +248,30 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     }
   };
 
+  // 변경사항 여부 계산 (isDirty)
+  const isDirty = useMemo(() => {
+    if (!currentNote) {
+      return title.trim() !== '' || content.trim() !== '' || selectedProjectId !== '' || selectedTagIds.length > 0 || newFiles.length > 0;
+    }
+    const originalProjectCode = codes.find(c => c.group === '프로젝트' && currentNote.codeIds.includes(c.id));
+    const originalProjectId = originalProjectCode ? originalProjectCode.id : '';
+    const originalTagIds = codes
+        .filter(c => c.group !== '프로젝트' && currentNote.codeIds.includes(c.id))
+        .map(c => c.id);
+    
+    const tagsChanged = originalTagIds.length !== selectedTagIds.length || !originalTagIds.every(id => selectedTagIds.includes(id));
+    const attachmentsChanged = (currentNote.attachments?.length || 0) !== existingAttachments.length || !(currentNote.attachments || []).every(a => existingAttachments.includes(a));
+
+    return title !== currentNote.title ||
+           content !== currentNote.content ||
+           selectedProjectId !== originalProjectId ||
+           tagsChanged ||
+           newFiles.length > 0 ||
+           attachmentsChanged;
+  }, [currentNote, title, content, selectedProjectId, selectedTagIds, newFiles, existingAttachments, codes]);
+
   // 저장 요청
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     const combinedCodeIds = [
       ...(selectedProjectId ? [selectedProjectId] : []),
       ...selectedTagIds
@@ -256,23 +279,12 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
 
     try {
       if (activeNoteId) {
-        await updateNote(
-          activeNoteId,
-          title,
-          content,
-          combinedCodeIds,
-          newFiles,
-          existingAttachments
-        );
+        await updateNote(activeNoteId, title, content, combinedCodeIds, newFiles, existingAttachments);
         showToast('노트가 저장되었습니다.', 'success');
       } else {
-        await addNote(
-          title,
-          content,
-          combinedCodeIds,
-          newFiles
-        );
+        await addNote(title, content, combinedCodeIds, newFiles);
         showToast('새 노트가 작성되었습니다.', 'success');
+        // 신규 노트의 경우 저장 후 폼을 비움
         setTitle('');
         setContent('');
         setSelectedProjectId('');
@@ -280,15 +292,27 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         setNewFiles([]);
         setExistingAttachments([]);
       }
-      
-      if (onCloseMobile) {
-        onCloseMobile();
-      }
+      return true;
     } catch (err: any) {
       setErrorMsg(err.message || '저장 중 오류가 발생했습니다.');
       showToast('저장에 실패했습니다.', 'error');
+      return false;
     }
   };
+
+  // 글로벌 네비게이션 인터셉터 등록
+  useEffect(() => {
+    setNavigationInterceptor(async (targetId) => {
+      if (!isDirty) return true;
+      const wantToSave = window.confirm('변경된 내용이 있습니다. 저장하시겠습니까?\n확인: 저장 후 이동\n취소: 저장하지 않고 이동');
+      if (wantToSave) {
+        const success = await handleSave();
+        return success; // 저장이 완료되어야 이동 허용
+      }
+      return true; // 저장하지 않기로 했으면 그냥 이동
+    });
+    return () => setNavigationInterceptor(null);
+  }, [isDirty, handleSave, setNavigationInterceptor]);
 
   // 삭제 요청
   const handleDelete = async () => {
@@ -324,9 +348,9 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
 
 
   // 취소/뒤로가기
-  const handleCancel = () => {
-    setActiveNoteId(null);
-    if (onCloseMobile) {
+  const handleCancel = async () => {
+    const success = await requestNavigation(null);
+    if (success && onCloseMobile) {
       onCloseMobile();
     }
   };

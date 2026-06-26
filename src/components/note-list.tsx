@@ -14,7 +14,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
     codes,
     filter,
     activeNoteId,
-    setActiveNoteId
+    requestNavigation
   } = useStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,16 +56,16 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
   };
 
-  const handleNoteSelect = (noteId: string) => {
-    setActiveNoteId(noteId);
-    if (onOpenEditorMobile) {
+  const handleNoteSelect = async (noteId: string) => {
+    const success = await requestNavigation(noteId);
+    if (success && onOpenEditorMobile) {
       onOpenEditorMobile();
     }
   };
 
-  const handleAddNewNote = () => {
-    setActiveNoteId(null); // 에디터를 빈 폼으로 세팅
-    if (onOpenEditorMobile) {
+  const handleAddNewNote = async () => {
+    const success = await requestNavigation(null); // 에디터를 빈 폼으로 세팅
+    if (success && onOpenEditorMobile) {
       onOpenEditorMobile();
     }
   };

@@ -69,6 +69,12 @@ interface StoreState {
   setSelectedProject: (project: string) => void;
   toggleSelectedTag: (tag: string) => void;
   setActiveNoteId: (id: string | null) => void;
+  
+  // Navigation
+  requestNavigation: (id: string | null) => Promise<boolean>;
+  navigationInterceptor: ((id: string | null) => Promise<boolean>) | null;
+  setNavigationInterceptor: (interceptor: ((id: string | null) => Promise<boolean>) | null) => void;
+
   clearFilters: () => void;
 }
 
@@ -788,6 +794,19 @@ export const useStore = create<StoreState>((set, get) => ({
 
   setActiveNoteId: (id) => {
     set({ activeNoteId: id });
+  },
+
+  navigationInterceptor: null,
+  setNavigationInterceptor: (interceptor) => set({ navigationInterceptor: interceptor }),
+  
+  requestNavigation: async (id) => {
+    const { navigationInterceptor, setActiveNoteId } = get();
+    if (navigationInterceptor) {
+      const proceed = await navigationInterceptor(id);
+      if (!proceed) return false;
+    }
+    setActiveNoteId(id);
+    return true;
   },
 
   clearFilters: () => {

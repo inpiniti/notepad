@@ -72,7 +72,6 @@ interface StoreState {
   
   // Navigation
   requestNavigation: (id: string | null) => Promise<boolean>;
-  navigationInterceptor: ((id: string | null) => Promise<boolean>) | null;
   setNavigationInterceptor: (interceptor: ((id: string | null) => Promise<boolean>) | null) => void;
 
   clearFilters: () => void;
@@ -144,6 +143,9 @@ const DEFAULT_NOTES: Note[] = [
     updated: new Date().toISOString()
   }
 ];
+
+// 네비게이션 가로채기를 위한 모듈 레벨 변수 (상태 변경으로 인한 무한 렌더링 방지)
+let globalNavigationInterceptor: ((id: string | null) => Promise<boolean>) | null = null;
 
 export const useStore = create<StoreState>((set, get) => ({
   notes: [],
@@ -796,15 +798,16 @@ export const useStore = create<StoreState>((set, get) => ({
     set({ activeNoteId: id });
   },
 
-  navigationInterceptor: null,
-  setNavigationInterceptor: (interceptor) => set({ navigationInterceptor: interceptor }),
+  setNavigationInterceptor: (interceptor) => {
+    globalNavigationInterceptor = interceptor;
+  },
   
   requestNavigation: async (id) => {
-    const { navigationInterceptor, setActiveNoteId } = get();
-    if (navigationInterceptor) {
-      const proceed = await navigationInterceptor(id);
+    if (globalNavigationInterceptor) {
+      const proceed = await globalNavigationInterceptor(id);
       if (!proceed) return false;
     }
+    const { setActiveNoteId } = get();
     setActiveNoteId(id);
     return true;
   },

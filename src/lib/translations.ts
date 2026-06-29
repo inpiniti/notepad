@@ -39,8 +39,8 @@ export interface TranslationSet {
 
 export const translations: Record<LangType, TranslationSet> = {
   en: {
-    appTitle: 'OnlineNote',
-    appSubtitle: 'Dynamic Categorization & Real-time Sync Notepad',
+    appTitle: 'Inpiniti Note',
+    appSubtitle: 'Smart Online Notepad, Memo, Note-taking & Real-time Sync',
     projectLabel: 'Project',
     tagLabel: 'TAG',
     functionLabel: 'Function',
@@ -53,7 +53,7 @@ export const translations: Record<LangType, TranslationSet> = {
     sampleMode: 'Sample Mode',
     loginBtn: 'Login',
     noNoteSelected: 'No Note Selected',
-    noNoteDesc: 'Select a note from the list on the left to edit, or create a new note and link it to projects or tags.',
+    noNoteDesc: 'Select a note from the left to edit, or create a new memo to link with tags. Organize your online notes, memos, and writings smartly with Inpiniti Note.',
     addCategory: 'Add Category',
     multiSelect: 'Multi-select',
     singleSelect: 'Single-select',
@@ -75,8 +75,8 @@ export const translations: Record<LangType, TranslationSet> = {
     toastDeleteCodeSuccess: 'Category deleted.'
   },
   ko: {
-    appTitle: '온라인노트 (OnlineNote)',
-    appSubtitle: '강력한 분류 매핑 & 실시간 동기화 메모장',
+    appTitle: '인피니티 노트 (Inpiniti Note)',
+    appSubtitle: '온라인 메모장, 스마트 노트, 필기장, 인피니티 메모, 온라인 노트',
     projectLabel: '프로젝트',
     tagLabel: 'TAG',
     functionLabel: '기능',
@@ -89,7 +89,7 @@ export const translations: Record<LangType, TranslationSet> = {
     sampleMode: '샘플 모드',
     loginBtn: '로그인',
     noNoteSelected: '노트가 선택되지 않았습니다',
-    noNoteDesc: '왼쪽 목록에서 노트를 선택하여 내용을 편집하거나, 신규 노트를 작성하여 프로젝트/태그와 연결해 보세요.',
+    noNoteDesc: '왼쪽 목록에서 노트를 선택하거나 신규 메모를 작성하여 태그와 연결해 보세요. 인피니티 노트(Inpiniti Note)는 온라인 메모장, 스마트 노트, 필기장 역할을 수행하는 최고의 온라인 필기 앱입니다.',
     addCategory: '새로운 분류 추가',
     multiSelect: '다중',
     singleSelect: '단일',
@@ -111,8 +111,8 @@ export const translations: Record<LangType, TranslationSet> = {
     toastDeleteCodeSuccess: '분류가 삭제되었습니다.'
   },
   ja: {
-    appTitle: 'オンラインノート (OnlineNote)',
-    appSubtitle: '強力な分類マッピング＆リアルタイム同期メモ帳',
+    appTitle: 'Inpiniti Note (インピニティノート)',
+    appSubtitle: 'オンラインメモ帳、ノート、筆記、スマートメモ、インピニティメモ',
     projectLabel: 'プロジェクト',
     tagLabel: 'TAG',
     functionLabel: '機能',
@@ -125,7 +125,7 @@ export const translations: Record<LangType, TranslationSet> = {
     sampleMode: 'サンプルモード',
     loginBtn: 'ログイン',
     noNoteSelected: 'ノートが選択されていません',
-    noNoteDesc: '左側のリストからノートを選択して編集するか、新しいノートを作成してプロジェクトやタグにリンクしてください。',
+    noNoteDesc: '左側のリストからノートを選択するか、新しいメモを作成してタグとリンクしてください。Inpiniti Noteは、オンラインメモ、スマートノート、筆記アプリとして機能します。',
     addCategory: '新しいカテゴリを追加',
     multiSelect: '複数',
     singleSelect: '単一',
@@ -147,8 +147,8 @@ export const translations: Record<LangType, TranslationSet> = {
     toastDeleteCodeSuccess: 'カテゴリを削除しました。'
   },
   zh: {
-    appTitle: '在线笔记 (OnlineNote)',
-    appSubtitle: '强大分类映射与实时同步笔记本',
+    appTitle: 'Inpiniti Note (无限笔记)',
+    appSubtitle: '在线备忘录、在线笔记、智能记事本、Inpiniti Memo',
     projectLabel: '项目',
     tagLabel: 'TAG',
     functionLabel: '功能',
@@ -161,7 +161,7 @@ export const translations: Record<LangType, TranslationSet> = {
     sampleMode: '演示模式',
     loginBtn: '登录',
     noNoteSelected: '未选择笔记',
-    noNoteDesc: '从左侧列表中选择笔记进行编辑，或创建新笔记并将其链接到项目或标签。',
+    noNoteDesc: '在左侧列表中选择笔记进行编辑，或创建新笔记。Inpiniti Note是您最佳的在线笔记本、备忘录和智能记事本工具。',
     addCategory: '添加新分类',
     multiSelect: '多选',
     singleSelect: '单选',
@@ -183,8 +183,8 @@ export const translations: Record<LangType, TranslationSet> = {
     toastDeleteCodeSuccess: '已删除分类。'
   },
   es: {
-    appTitle: 'OnlineNote',
-    appSubtitle: 'Categorización dinámica y bloc de notas sincronizado en tiempo real',
+    appTitle: 'Inpiniti Note',
+    appSubtitle: 'Bloc de notas en línea, Memos, Cuaderno inteligente, Inpiniti Memo',
     projectLabel: 'Proyecto',
     tagLabel: 'TAG',
     functionLabel: 'Función',
@@ -197,7 +197,7 @@ export const translations: Record<LangType, TranslationSet> = {
     sampleMode: 'Modo de Muestra',
     loginBtn: 'Iniciar sesión',
     noNoteSelected: 'Ninguna nota seleccionada',
-    noNoteDesc: 'Seleccione una nota de la lista de la izquierda para editarla, o cree una nueva nota y vincúlela a proyectos o etiquetas.',
+    noNoteDesc: 'Seleccione una nota para editarla, o cree un nuevo memo. Organice sus notas y escritos en línea de forma inteligente con Inpiniti Note.',
     addCategory: 'Agregar Categoría',
     multiSelect: 'Multiselección',
     singleSelect: 'Selección única',

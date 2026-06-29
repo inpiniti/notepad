@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Plus, Trash2, Folder, Tag, Filter, FolderPlus, ChevronDown, ToggleLeft, ToggleRight } from 'lucide-react';
+import { translations } from '@/lib/translations';
 
 interface FilterPanelProps {
   isMobileDrawer?: boolean;
@@ -37,12 +38,20 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
   const [newProjectName, setNewProjectName] = useState('');
   const [showAddProject, setShowAddProject] = useState(false);
 
+  // 분류 분리
+  const currentLang = useStore(state => state.currentLang);
+  const t = translations[currentLang];
+  const projectGroupKeys = ['프로젝트', 'Project', 'プロジェクト', '项目', 'Proyecto', 'Projet', 'Projekt'];
+  
+  // 현재 스토어의 codes 중 어떤 명이 프로젝트 대분류인지 찾아내기
+  const projectGroupName = Array.from(new Set(codes.map(c => c.group)))
+    .find(g => projectGroupKeys.includes(g)) || 'Project';
+
   // 그룹별 접힘/펼침 상태 관리 (모든 그룹 기본 펼침)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    '프로젝트': true,
+    [projectGroupName]: true,
   });
 
-  // codes 로드 시 모든 그룹을 기본으로 펼침
   useEffect(() => {
     if (codes.length > 0) {
       const allGroups = Array.from(new Set(codes.map(c => c.group)));
@@ -61,57 +70,56 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
         [groupName]: !prev[groupName]
       };
       if (!nextState[groupName]) {
-        if (groupName === '프로젝트') setShowAddProject(false);
+        if (groupName === projectGroupName) setShowAddProject(false);
         else if (activeAddGroup === groupName) setActiveAddGroup(null);
       }
       return nextState;
     });
   };
 
-  // 삭제 확인 후 deleteCode 호출 헬퍼
   const handleDeleteCode = async (id: string, name: string) => {
-    if (!window.confirm(`"${name}" 분류를 삭제하시겠습니까?\n이 분류가 적용된 노트에서도 제거됩니다.`)) return;
+    const confirmMessage = currentLang === 'ko' ? `"${name}" 분류를 삭제하시겠습니까?\n이 분류가 적용된 노트에서도 제거됩니다.` : `Are you sure you want to delete "${name}"?`;
+    if (!window.confirm(confirmMessage)) return;
     try {
       await deleteCode(id);
-      showToast(`"${name}" 분류가 삭제되었습니다.`, 'success');
+      const successMessage = currentLang === 'ko' ? `"${name}" 분류가 삭제되었습니다.` : `Category "${name}" deleted.`;
+      showToast(successMessage, 'success');
     } catch {
-      showToast('삭제에 실패했습니다.', 'error');
+      const errorMessage = currentLang === 'ko' ? '삭제에 실패했습니다.' : 'Failed to delete.';
+      showToast(errorMessage, 'error');
     }
   };
 
-  // 분류 분리
-  const projects = codes.filter(c => c.group === '프로젝트');
+  const projects = codes.filter(c => c.group === projectGroupName);
   const otherGroups = Array.from(new Set(codes.map(c => c.group)))
-    .filter(g => g !== '프로젝트')
+    .filter(g => g !== projectGroupName)
     .sort();
 
-  // 새 카테고리(분류) 생성 핸들러
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCategoryName.trim() || !newCodeName.trim()) return;
     setErrorMsg(null);
     try {
       await addCode(newCategoryName.trim(), newCodeName.trim());
-      // 단일/다중 선택 설정도 같이 저장
       await updateCodeGroup(newCategoryName.trim(), newCategoryMulti);
       setNewCodeName('');
       setNewCategoryName('');
       setNewCategoryMulti(true);
       setErrorMsg(null);
       setShowAddCategory(false);
-      showToast(`"${newCategoryName.trim()}" 분류가 생성되었습니다.`, 'success');
+      const successMessage = currentLang === 'ko' ? `"${newCategoryName.trim()}" 분류가 생성되었습니다.` : `Category "${newCategoryName.trim()}" created.`;
+      showToast(successMessage, 'success');
     } catch (err: any) {
       console.error(err);
       const message = err?.message || '';
       if (message.includes('codes_group_name_check')) {
-        setErrorMsg('Supabase DB 제약조건 위반: group_name 필드에 커스텀 명칭 추가가 막혀 있습니다. DB의 codes_group_name_check 제약 조건을 해제하셔야 합니다.');
+        setErrorMsg('Supabase DB Check Constraint Violation.');
       } else {
-        setErrorMsg(message || '분류 생성에 실패했습니다.');
+        setErrorMsg(message || 'Failed to create category.');
       }
     }
   };
 
-  // 기존 특정 분류 그룹에 새 항목 추가 핸들러
   const handleAddItemToGroup = async (e: React.FormEvent, groupName: string) => {
     e.preventDefault();
     if (!newItemName.trim()) return;
@@ -124,12 +132,11 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
     }
   };
 
-  // 신규 프로젝트 추가 핸들러
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProjectName.trim()) return;
     try {
-      await addCode('프로젝트', newProjectName.trim());
+      await addCode(projectGroupName, newProjectName.trim());
       setNewProjectName('');
       setShowAddProject(false);
     } catch (err) {
@@ -137,27 +144,27 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
     }
   };
 
+  const allKeyword = currentLang === 'ko' ? '전체' : (currentLang === 'ja' ? 'すべて' : (currentLang === 'zh' ? '全部' : 'All'));
+
   return (
     <div className="flex flex-col h-full min-h-0 flex-1 text-slate-800">
-      {/* 필터 타이틀 & 초기화 */}
       {!isMobileDrawer && (
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 shrink-0 bg-slate-50/30">
           <div className="flex items-center gap-2 font-semibold text-slate-900">
             <Filter className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs">필터 및 분류</span>
+            <span className="text-xs">{t.detailFilter}</span>
           </div>
-          {(filter.selectedProject !== '전체' || filter.selectedTags.length > 0) && (
+          {(filter.selectedProject !== allKeyword || filter.selectedTags.length > 0) && (
             <button 
               onClick={clearFilters}
               className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
             >
-              초기화
+              {currentLang === 'ko' ? '초기화' : 'Reset'}
             </button>
           )}
         </div>
       )}
 
-      {/* 새 분류 카테고리 생성 버튼 및 폼 */}
       <div className="shrink-0 px-4 py-2 flex flex-col gap-2">
         <div className="flex gap-2">
           {!showAddCategory ? (
@@ -171,22 +178,22 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
               className="flex-1 text-[10px] font-bold text-slate-600 border-dashed border-slate-200 hover:border-indigo-400 hover:text-indigo-600 rounded-lg h-7.5 flex items-center justify-center gap-1 shrink-0"
             >
               <FolderPlus className="w-3 h-3" />
-              <span>새로운 분류 추가</span>
+              <span>{t.addCategory}</span>
             </Button>
           ) : (
             <div className="flex-1 text-[9px] font-bold text-slate-450 uppercase tracking-wider flex items-center px-0.5">
-              새 분류 정의
+              {currentLang === 'ko' ? '분류 정의' : 'Define Category'}
             </div>
           )}
 
-          {isMobileDrawer && (filter.selectedProject !== '전체' || filter.selectedTags.length > 0) && (
+          {isMobileDrawer && (filter.selectedProject !== allKeyword || filter.selectedTags.length > 0) && (
             <Button
               onClick={clearFilters}
               variant="ghost"
               size="sm"
               className="h-7.5 px-3 text-[10px] font-bold text-red-500 hover:bg-red-50 hover:text-red-700 border border-transparent rounded-lg shrink-0"
             >
-              필터 초기화
+              {currentLang === 'ko' ? '필터 초기화' : 'Reset Filters'}
             </Button>
           )}
         </div>
@@ -200,7 +207,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
               <Input
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="분류명 (예: 중요도)"
+                placeholder={currentLang === 'ko' ? "분류명 (예: 중요도)" : "Category Name (e.g. Priority)"}
                 className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-slate-50/50 border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
                 required
                 autoFocus
@@ -214,7 +221,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
               <Input
                 value={newCodeName}
                 onChange={(e) => setNewCodeName(e.target.value)}
-                placeholder="첫 항목명 (예: 상)"
+                placeholder={currentLang === 'ko' ? "첫 항목명 (예: 상)" : "First Item Name (e.g. High)"}
                 className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-slate-50/50 border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
                 required
                 onKeyDown={(e) => {
@@ -224,7 +231,6 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                   }
                 }}
               />
-              {/* 단일 / 다중 선택 토글 */}
               <button
                 type="button"
                 onClick={() => setNewCategoryMulti(prev => !prev)}
@@ -237,7 +243,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 {newCategoryMulti
                   ? <ToggleRight className="w-3.5 h-3.5" />
                   : <ToggleLeft  className="w-3.5 h-3.5" />}
-                {newCategoryMulti ? '다중 선택 가능' : '단일 선택만 허용'}
+                {newCategoryMulti ? t.multiSelect : t.singleSelect}
               </button>
             </div>
             {errorMsg && (
@@ -255,41 +261,38 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 }}
                 className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
-                나가기
+                {t.exit}
               </Button>
               <Button 
                 type="submit"
                 className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
               >
-                생성
+                {t.create}
               </Button>
             </div>
           </form>
         )}
       </div>
 
-      {/* 스크롤 가능한 본문 */}
       <div className="flex-1 overflow-y-auto px-0 pb-6">
-        {/* 프로젝트 섹션 위의 구분선 (새로운 분류 추가 아래) */}
         <div className="border-t border-slate-200/60 mt-1 mb-2 shrink-0" />
 
-        {/* 1. 프로젝트 섹션 (대분류) */}
         <div className="flex flex-col">
           <div 
-            onClick={() => toggleGroup('프로젝트')}
+            onClick={() => toggleGroup(projectGroupName)}
             className="flex items-center justify-between cursor-pointer hover:bg-slate-100/70 px-4 py-1.5 transition-colors select-none group"
           >
             <div className="flex items-center gap-1.5 min-w-0 select-none">
               <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${
-                expandedGroups['프로젝트'] ? 'transform rotate-0' : 'transform -rotate-90'
+                expandedGroups[projectGroupName] ? 'transform rotate-0' : 'transform -rotate-90'
               }`} />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">프로젝트 (대분류)</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{projectGroupName}</span>
             </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (!expandedGroups['프로젝트']) {
-                  setExpandedGroups(prev => ({ ...prev, '프로젝트': true }));
+                if (!expandedGroups[projectGroupName]) {
+                  setExpandedGroups(prev => ({ ...prev, [projectGroupName]: true }));
                 }
                 setShowAddProject(!showAddProject);
               }}
@@ -299,7 +302,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
             </button>
           </div>
 
-          {expandedGroups['프로젝트'] && (
+          {expandedGroups[projectGroupName] && (
             <div className="flex flex-col animate-fadeIn">
               {showAddProject && (
                 <form 
@@ -309,7 +312,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                   <Input
                     value={newProjectName}
                     onChange={(e) => setNewProjectName(e.target.value)}
-                    placeholder="새 프로젝트 명"
+                    placeholder={currentLang === 'ko' ? "새 프로젝트 명" : "New Project Name"}
                     className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
                     autoFocus
                     onKeyDown={(e) => {
@@ -329,13 +332,13 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                       }}
                       className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                     >
-                      나가기
+                      {t.exit}
                     </Button>
                     <Button 
                       type="submit"
                       className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
                     >
-                      추가
+                      {currentLang === 'ko' ? '추가' : 'Add'}
                     </Button>
                   </div>
                 </form>
@@ -344,17 +347,17 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
               <div className="flex flex-col">
                 <button
                   onClick={() => {
-                    setSelectedProject('전체');
+                    setSelectedProject(allKeyword);
                     if (isMobileDrawer && onCloseMobileDrawer) onCloseMobileDrawer();
                   }}
                   className={`w-full flex items-center gap-2 pl-8 pr-4 py-2 text-xs transition-all text-left border-l-2 select-none ${
-                    filter.selectedProject === '전체'
+                    filter.selectedProject === allKeyword
                       ? 'bg-indigo-50/40 border-l-indigo-600 text-indigo-900 font-semibold'
                       : 'bg-transparent border-l-transparent text-slate-600 hover:bg-slate-100/40 hover:text-slate-900'
                   }`}
                 >
-                  <Folder className={`w-3.5 h-3.5 shrink-0 ${filter.selectedProject === '전체' ? 'text-indigo-500' : 'text-slate-400'}`} />
-                  <span>전체 프로젝트</span>
+                  <Folder className={`w-3.5 h-3.5 shrink-0 ${filter.selectedProject === allKeyword ? 'text-indigo-500' : 'text-slate-400'}`} />
+                  <span>{currentLang === 'ko' ? '전체 프로젝트' : `${t.projectLabel} (${t.allProjects})`}</span>
                 </button>
 
                 {projects.map((project) => {
@@ -378,7 +381,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                       <button
                         onClick={() => handleDeleteCode(project.id, project.name)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
-                        title="삭제"
+                        title={currentLang === 'ko' ? '삭제' : 'Delete'}
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -419,12 +422,15 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         onClick={(e) => {
                           e.stopPropagation();
                           updateCodeGroup(groupName, !isMulti);
+                          const stateMsg = currentLang === 'ko' 
+                            ? `"${groupName}"을 ${!isMulti ? '다중 선택' : '단일 선택'}으로 변경했습니다.` 
+                            : `Changed "${groupName}" to ${!isMulti ? 'multi-select' : 'single-select'}.`;
                           showToast(
-                            `"${groupName}"을 ${!isMulti ? '다중 선택' : '단일 선택'}으로 변경했습니다.`,
+                            stateMsg,
                             'info'
                           );
                         }}
-                        title={isMulti ? '현재: 다중 선택 (클릭 시 단일 선택으로 변경)' : '현재: 단일 선택 (클릭 시 다중 선택으로 변경)'}
+                        title={isMulti ? (currentLang === 'ko' ? '현재: 다중 선택 (클릭 시 단일 선택으로 변경)' : 'Current: Multi-select (Click to change to single-select)') : (currentLang === 'ko' ? '현재: 단일 선택 (클릭 시 다중 선택으로 변경)' : 'Current: Single-select (Click to change to multi-select)')}
                         className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-semibold border transition-colors ${
                           isMulti
                             ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100'
@@ -434,7 +440,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         {isMulti
                           ? <ToggleRight className="w-3 h-3" />
                           : <ToggleLeft  className="w-3 h-3" />}
-                        <span>{isMulti ? '다중' : '단일'}</span>
+                        <span>{isMulti ? t.multiSelect : t.singleSelect}</span>
                       </button>
                     );
                   })()}
@@ -464,7 +470,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                       <Input
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
-                        placeholder={`새 ${groupName} 명`}
+                        placeholder={currentLang === 'ko' ? `새 ${groupName} 명` : `New ${groupName} Item`}
                         className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
                         autoFocus
                         onKeyDown={(e) => {
@@ -484,13 +490,13 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                           }}
                           className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-650 hover:bg-slate-100"
                         >
-                          나가기
+                          {t.exit}
                         </Button>
                         <Button 
                           type="submit"
                           className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
                         >
-                          추가
+                          {currentLang === 'ko' ? '추가' : 'Add'}
                         </Button>
                       </div>
                     </form>
@@ -515,7 +521,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                           <button
                             onClick={() => handleDeleteCode(code.id, code.name)}
                             className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
-                            title="삭제"
+                            title={currentLang === 'ko' ? '삭제' : 'Delete'}
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
@@ -523,7 +529,9 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                       );
                     })}
                     {groupCodes.length === 0 && (
-                      <p className="text-[10px] text-slate-400 text-center py-2">등록된 항목이 없습니다.</p>
+                      <p className="text-[10px] text-slate-400 text-center py-2">
+                        {currentLang === 'ko' ? '등록된 항목이 없습니다.' : 'No items registered.'}
+                      </p>
                     )}
                   </div>
                 </div>

@@ -75,6 +75,10 @@ interface StoreState {
   setNavigationInterceptor: (interceptor: ((id: string | null) => Promise<boolean>) | null) => void;
 
   clearFilters: () => void;
+  
+  // 다국어 지원 (i18n)
+  currentLang: 'en' | 'ko' | 'ja' | 'zh' | 'es' | 'fr' | 'de';
+  setLang: (lang: 'en' | 'ko' | 'ja' | 'zh' | 'es' | 'fr' | 'de') => void;
 }
 
 // 로컬 스토리지 헬퍼 (수퍼베이스 연결 실패 시 폴백용)
@@ -103,103 +107,378 @@ const getStoragePathFromUrl = (url: string): string | null => {
   return null;
 };
 
-const DEFAULT_CODES: Code[] = [
-  // 1) 프로젝트 (대분류)
-  { id: 'c1', group: '프로젝트', name: '마케팅 캠페인' },
-  { id: 'c2', group: '프로젝트', name: '신제품 기획' },
-  { id: 'c3', group: '프로젝트', name: '고객 지원 채널' },
-  { id: 'c4', group: '프로젝트', name: '웹 서비스 리뉴얼' },
-  { id: 'c5', group: '프로젝트', name: '개인 서재 정리' },
-
-  // 2) TAG (소분류)
-  { id: 'c6', group: 'TAG', name: '메모' },
-  { id: 'c7', group: 'TAG', name: '아이디어' },
-  { id: 'c8', group: 'TAG', name: '피드백' },
-  { id: 'c9', group: 'TAG', name: '참고자료' },
-  { id: 'c10', group: 'TAG', name: '회의록' },
-  { id: 'c11', group: 'TAG', name: '할일' },
-
-  // 3) 기능
-  { id: 'c12', group: '기능', name: '기획' },
-  { id: 'c13', group: '기능', name: '디자인' },
-  { id: 'c14', group: '기능', name: '개발' },
-  { id: 'c15', group: '기능', name: '퍼블리싱' },
-
-  // 4) 진행
-  { id: 'c16', group: '진행', name: '대기' },
-  { id: 'c17', group: '진행', name: '완료' }
-];
-
-const DEFAULT_NOTES: Note[] = [
-  {
-    id: 'n1',
-    title: '시간관리 및 주간 주요 계획',
-    content: '1. 웹 서비스 리뉴얼 모니터링 시스템 실시간 대시보드 검토\n2. 신제품 기획 배포 및 런칭 일정 확인\n3. 마케팅 캠페인 시각 자료 보완 회의 참석 예정',
-    codeIds: ['c1', 'c10', 'c16'], // 마케팅 캠페인, 회의록, 대기
-    attachments: [],
-    created: '2026-06-29T07:11:00.000Z',
-    updated: '2026-06-29T07:11:00.000Z'
-  },
-  {
-    id: 'n2',
-    title: '메모 필터 기능 수정 내역',
-    content: '필터패드(FilterPad)의 다중 카테고리 조합 필터링 로직 수정 완료. 동일 분류 그룹 내에서는 OR 연산이 수행되고 다른 분류 간에는 AND 조건이 매핑되도록 필터링 알고리즘을 갱신하였습니다.',
-    codeIds: ['c4', 'c6', 'c17'], // 웹 서비스 리뉴얼, 메모, 완료
-    attachments: [],
-    created: '2026-06-29T06:27:00.000Z',
-    updated: '2026-06-29T06:27:00.000Z'
-  },
-  {
-    id: 'n3',
-    title: '서버 로그 분석 및 인프라 개선',
-    content: 'API 게이트웨이 요청 분산 처리 및 스토리지 연결 상태의 에러 빈도 로깅 테스트를 완료했습니다. 현재 모니터링 결과 지연 시간 정상 범위 이내입니다.',
-    codeIds: ['c4', 'c9', 'c17'], // 웹 서비스 리뉴얼, 참고자료, 완료
-    attachments: [],
-    created: '2026-06-29T06:20:00.000Z',
-    updated: '2026-06-29T06:20:00.000Z'
-  },
-  {
-    id: 'n4',
-    title: '궁극적 업무 목표 정리',
-    content: '- 다목적 웹 메모장 필터패드(FilterPad)의 배포 자동화 파이프라인 구축\n- 모바일 반응형 뷰포트(Elastic Scroll 방지 포함) UI 검증 완료하기',
-    codeIds: ['c4', 'c11', 'c16'], // 웹 서비스 리뉴얼, 할일, 대기
-    attachments: [],
-    created: '2026-06-29T05:14:00.000Z',
-    updated: '2026-06-29T05:14:00.000Z'
-  },
-  {
-    id: 'n5',
-    title: '고객 지원 채널 개설 참고자료',
-    content: '실시간 피드백 처리용 웹소켓 모듈 연동 진행 완료. 동시 접속자 신호 처리 지연 현상 개선하기 위한 스레드풀 분산 검증 진행 중.',
-    codeIds: ['c3', 'c14', 'c16'], // 고객 지원 채널, 개발, 대기
-    attachments: [],
-    created: '2026-06-25T16:54:00.000Z',
-    updated: '2026-06-25T16:54:00.000Z'
-  },
-  {
-    id: 'n6',
-    title: '신제품 홍보용 상세 랜딩페이지 디자인',
-    content: '메인 제품 마케팅용 디자인 시안 컨셉 선정 완료. 반응형 스타일 가이드에 맞춰 레이아웃 교정 및 시범 적용 검증 완료.',
-    codeIds: ['c2', 'c13', 'c17'], // 신제품 기획, 디자인, 완료
-    attachments: [],
-    created: '2026-06-25T14:49:00.000Z',
-    updated: '2026-06-25T14:49:00.000Z'
-  },
-  {
-    id: 'n7',
-    title: '사용자 피드백 수집 및 요구사항 반영',
-    content: '모바일 및 웹 브라우저 전체화면 편집 모드 진입 시 스크롤 튐 문제 수정 건에 대한 피드백 보고서 정리 완료.',
-    codeIds: ['c1', 'c8', 'c16'], // 마케팅 캠페인, 피드백, 대기
-    attachments: [],
-    created: '2026-06-25T14:25:00.000Z',
-    updated: '2026-06-25T14:25:00.000Z'
+// 다국어별 코드 생성 헬퍼
+const getLocalizedCodes = (lang: string): Code[] => {
+  if (lang === 'ko') {
+    return [
+      { id: 'c1', group: '프로젝트', name: '마케팅 캠페인' },
+      { id: 'c2', group: '프로젝트', name: '신제품 기획' },
+      { id: 'c3', group: '프로젝트', name: '고객 지원 채널' },
+      { id: 'c4', group: '프로젝트', name: '웹 서비스 리뉴얼' },
+      { id: 'c5', group: '프로젝트', name: '개인 서재 정리' },
+      { id: 'c6', group: 'TAG', name: '메모' },
+      { id: 'c7', group: 'TAG', name: '아이디어' },
+      { id: 'c8', group: 'TAG', name: '피드백' },
+      { id: 'c9', group: 'TAG', name: '참고자료' },
+      { id: 'c10', group: 'TAG', name: '회의록' },
+      { id: 'c11', group: 'TAG', name: '할일' },
+      { id: 'c12', group: '기능', name: '기획' },
+      { id: 'c13', group: '기능', name: '디자인' },
+      { id: 'c14', group: '기능', name: '개발' },
+      { id: 'c15', group: '기능', name: '퍼블리싱' },
+      { id: 'c16', group: '진행', name: '대기' },
+      { id: 'c17', group: '진행', name: '완료' }
+    ];
+  } else if (lang === 'ja') {
+    return [
+      { id: 'c1', group: 'プロジェクト', name: 'マーケティングキャンペーン' },
+      { id: 'c2', group: 'プロジェクト', name: '新製品の企画' },
+      { id: 'c3', group: 'プロジェクト', name: 'カスタマーサポートチャネル' },
+      { id: 'c4', group: 'プロジェクト', name: 'ウェブサービスのリニューアル' },
+      { id: 'c5', group: 'プロジェクト', name: '個人書斎の整理' },
+      { id: 'c6', group: 'TAG', name: 'メモ' },
+      { id: 'c7', group: 'TAG', name: 'アイデア' },
+      { id: 'c8', group: 'TAG', name: 'フィードバック' },
+      { id: 'c9', group: 'TAG', name: '参考資料' },
+      { id: 'c10', group: 'TAG', name: '会議録' },
+      { id: 'c11', group: 'TAG', name: 'タスク' },
+      { id: 'c12', group: '機能', name: '企画' },
+      { id: 'c13', group: '機能', name: 'デザイン' },
+      { id: 'c14', group: '機能', name: '開発' },
+      { id: 'c15', group: '機能', name: 'パブリッシング' },
+      { id: 'c16', group: '進行', name: '待機' },
+      { id: 'c17', group: '進行', name: '完了' }
+    ];
+  } else if (lang === 'zh') {
+    return [
+      { id: 'c1', group: '项目', name: '营销活动' },
+      { id: 'c2', group: '项目', name: '新产品企划' },
+      { id: 'c3', group: '项目', name: '客户支持渠道' },
+      { id: 'c4', group: '项目', name: '网站服务重构' },
+      { id: 'c5', group: '项目', name: '个人书斋整理' },
+      { id: 'c6', group: 'TAG', name: '备忘录' },
+      { id: 'c7', group: 'TAG', name: '点子' },
+      { id: 'c8', group: 'TAG', name: '反馈' },
+      { id: 'c9', group: 'TAG', name: '参考资料' },
+      { id: 'c10', group: 'TAG', name: '会议纪要' },
+      { id: 'c11', group: 'TAG', name: '待办事项' },
+      { id: 'c12', group: '功能', name: '策划' },
+      { id: 'c13', group: '功能', name: '设计' },
+      { id: 'c14', group: '功能', name: '开发' },
+      { id: 'c15', group: '功能', name: '发布' },
+      { id: 'c16', group: '进度', name: '等待' },
+      { id: 'c17', group: '进度', name: '完成' }
+    ];
+  } else if (lang === 'es') {
+    return [
+      { id: 'c1', group: 'Proyecto', name: 'Campaña de Marketing' },
+      { id: 'c2', group: 'Proyecto', name: 'Planificación de Producto' },
+      { id: 'c3', group: 'Proyecto', name: 'Soporte al Cliente' },
+      { id: 'c4', group: 'Proyecto', name: 'Rediseño del Sitio Web' },
+      { id: 'c5', group: 'Proyecto', name: 'Organización del Estudio' },
+      { id: 'c6', group: 'TAG', name: 'Nota' },
+      { id: 'c7', group: 'TAG', name: 'Idea' },
+      { id: 'c8', group: 'TAG', name: 'Feedback' },
+      { id: 'c9', group: 'TAG', name: 'Referencia' },
+      { id: 'c10', group: 'TAG', name: 'Reunión' },
+      { id: 'c11', group: 'TAG', name: 'Tareas' },
+      { id: 'c12', group: 'Función', name: 'Planificación' },
+      { id: 'c13', group: 'Función', name: 'Diseño' },
+      { id: 'c14', group: 'Función', name: 'Desarrollo' },
+      { id: 'c15', group: 'Función', name: 'Publicación' },
+      { id: 'c16', group: 'Estado', name: 'Espera' },
+      { id: 'c17', group: 'Estado', name: 'Completado' }
+    ];
+  } else if (lang === 'fr') {
+    return [
+      { id: 'c1', group: 'Projet', name: 'Campagne de Marketing' },
+      { id: 'c2', group: 'Projet', name: 'Planification de Produit' },
+      { id: 'c3', group: 'Projet', name: 'Support Client' },
+      { id: 'c4', group: 'Projet', name: 'Refonte du Site Web' },
+      { id: 'c5', group: 'Projet', name: 'Organisation du Bureau' },
+      { id: 'c6', group: 'TAG', name: 'Note' },
+      { id: 'c7', group: 'TAG', name: 'Idée' },
+      { id: 'c8', group: 'TAG', name: 'Retour' },
+      { id: 'c9', group: 'TAG', name: 'Référence' },
+      { id: 'c10', group: 'TAG', name: 'Réunion' },
+      { id: 'c11', group: 'TAG', name: 'Tâches' },
+      { id: 'c12', group: 'Fonction', name: 'Planification' },
+      { id: 'c13', group: 'Fonction', name: 'Design' },
+      { id: 'c14', group: 'Fonction', name: 'Développement' },
+      { id: 'c15', group: 'Fonction', name: 'Publication' },
+      { id: 'c16', group: 'Statut', name: 'Attente' },
+      { id: 'c17', group: 'Statut', name: 'Terminé' }
+    ];
+  } else if (lang === 'de') {
+    return [
+      { id: 'c1', group: 'Projekt', name: 'Marketingkampagne' },
+      { id: 'c2', group: 'Projekt', name: 'Produktplanung' },
+      { id: 'c3', group: 'Projekt', name: 'Kundensupportkanal' },
+      { id: 'c4', group: 'Projekt', name: 'Webseite-Relaunch' },
+      { id: 'c5', group: 'Projekt', name: 'Büroorganisation' },
+      { id: 'c6', group: 'TAG', name: 'Notiz' },
+      { id: 'c7', group: 'TAG', name: 'Idee' },
+      { id: 'c8', group: 'TAG', name: 'Feedback' },
+      { id: 'c9', group: 'TAG', name: 'Referenz' },
+      { id: 'c10', group: 'TAG', name: 'Protokoll' },
+      { id: 'c11', group: 'TAG', name: 'Aufgaben' },
+      { id: 'c12', group: 'Funktion', name: 'Planung' },
+      { id: 'c13', group: 'Funktion', name: 'Design' },
+      { id: 'c14', group: 'Funktion', name: 'Entwicklung' },
+      { id: 'c15', group: 'Funktion', name: 'Veröffentlichung' },
+      { id: 'c16', group: 'Status', name: 'Warten' },
+      { id: 'c17', group: 'Status', name: 'Erledigt' }
+    ];
   }
-];
+  // 기본 영어(en) 설정
+  return [
+    { id: 'c1', group: 'Project', name: 'Marketing Campaign' },
+    { id: 'c2', group: 'Project', name: 'New Product Concept' },
+    { id: 'c3', group: 'Project', name: 'Customer Support Setup' },
+    { id: 'c4', group: 'Project', name: 'Web Service Redesign' },
+    { id: 'c5', group: 'Project', name: 'Personal Library Setup' },
+    { id: 'c6', group: 'TAG', name: 'Memo' },
+    { id: 'c7', group: 'TAG', name: 'Idea' },
+    { id: 'c8', group: 'TAG', name: 'Feedback' },
+    { id: 'c9', group: 'TAG', name: 'Resource' },
+    { id: 'c10', group: 'TAG', name: 'Meeting Minutes' },
+    { id: 'c11', group: 'TAG', name: 'TODO' },
+    { id: 'c12', group: 'Function', name: 'Planning' },
+    { id: 'c13', group: 'Function', name: 'Design' },
+    { id: 'c14', group: 'Function', name: 'Development' },
+    { id: 'c15', group: 'Function', name: 'Publishing' },
+    { id: 'c16', group: 'Status', name: 'Pending' },
+    { id: 'c17', group: 'Status', name: 'Completed' }
+  ];
+};
+
+// 다국어별 샘플 노트 생성 헬퍼
+const getLocalizedNotes = (lang: string, codes: Code[]): Note[] => {
+  if (lang === 'ko') {
+    return [
+      {
+        id: 'n1',
+        title: '시간관리 및 주간 주요 계획',
+        content: '1. 웹 서비스 리뉴얼 모니터링 시스템 실시간 대시보드 검토\n2. 신제품 기획 배포 및 런칭 일정 확인\n3. 마케팅 캠페인 시각 자료 보완 회의 참석 예정',
+        codeIds: ['c1', 'c10', 'c16'],
+        attachments: [],
+        created: '2026-06-29T07:11:00.000Z',
+        updated: '2026-06-29T07:11:00.000Z'
+      },
+      {
+        id: 'n2',
+        title: '메모 필터 기능 수정 내역',
+        content: '필터패드(FilterPad)의 다중 카테고리 조합 필터링 로직 수정 완료. 동일 분류 그룹 내에서는 OR 연산이 수행되고 다른 분류 간에는 AND 조건이 매핑되도록 필터링 알고리즘을 갱신하였습니다.',
+        codeIds: ['c4', 'c6', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:27:00.000Z',
+        updated: '2026-06-29T06:27:00.000Z'
+      },
+      {
+        id: 'n3',
+        title: '서버 로그 분석 및 인프라 개선',
+        content: 'API 게이트웨이 요청 분산 처리 및 스토리지 연결 상태의 에러 빈도 로깅 테스트를 완료했습니다. 현재 모니터링 결과 지연 시간 정상 범위 이내입니다.',
+        codeIds: ['c4', 'c9', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:20:00.000Z',
+        updated: '2026-06-29T06:20:00.000Z'
+      }
+    ];
+  } else if (lang === 'ja') {
+    return [
+      {
+        id: 'n1',
+        title: '時間管理および週間の主要計画',
+        content: '1. ウェブサービスリニューアル監視システムのリアルタイムダッシュボードの検証\n2. 新製品企画の配信および立ち上げスケジュールの確認\n3. マーケティングキャンペーン視覚資料補完会議への参加予定',
+        codeIds: ['c1', 'c10', 'c16'],
+        attachments: [],
+        created: '2026-06-29T07:11:00.000Z',
+        updated: '2026-06-29T07:11:00.000Z'
+      },
+      {
+        id: 'n2',
+        title: 'メモフィルター機能の修正内容',
+        content: 'OnlineNoteの複数カテゴリの組み合わせフィルタリングロジックの修正完了。同一の分類グループ内ではOR演算が実行され、異なる分類間ではAND条件がマッピングされるようにフィルタリングアルゴリズムを更新しました。',
+        codeIds: ['c4', 'c6', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:27:00.000Z',
+        updated: '2026-06-29T06:27:00.000Z'
+      },
+      {
+        id: 'n3',
+        title: 'サーバーログ分析およびインフラ改善',
+        content: 'APIゲートウェイ要求の分散処理およびストレージ接続状態のエラー頻度ロギングテストを完了しました。現在の監視結果では、遅延時間は正常範囲内です。',
+        codeIds: ['c4', 'c9', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:20:00.000Z',
+        updated: '2026-06-29T06:20:00.000Z'
+      }
+    ];
+  } else if (lang === 'zh') {
+    return [
+      {
+        id: 'n1',
+        title: '时间管理及每周主要计划',
+        content: '1. 审查网站服务重构监控系统的实时仪表板\n2. 确认新产品企划的分发和发布时间表\n3. 计划参加营销活动视觉材料补充会议',
+        codeIds: ['c1', 'c10', 'c16'],
+        attachments: [],
+        created: '2026-06-29T07:11:00.000Z',
+        updated: '2026-06-29T07:11:00.000Z'
+      },
+      {
+        id: 'n2',
+        title: '备忘录筛选功能修正明细',
+        content: '已完成 OnlineNote 多分类组合筛选逻辑的修正。更新了筛选算法，使得在同一分类组内执行 OR 运算，而在不同分类之间映射 AND 条件。',
+        codeIds: ['c4', 'c6', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:27:00.000Z',
+        updated: '2026-06-29T06:27:00.000Z'
+      },
+      {
+        id: 'n3',
+        title: '服务器日志分析及基础设施改善',
+        content: '完成了 API 网关请求的分散处理及存储连接状态的错误频率记录测试。目前的监控结果显示，延迟时间在正常范围内。',
+        codeIds: ['c4', 'c9', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:20:00.000Z',
+        updated: '2026-06-29T06:20:00.000Z'
+      }
+    ];
+  } else if (lang === 'es') {
+    return [
+      {
+        id: 'n1',
+        title: 'Gestión del tiempo y plan semanal',
+        content: '1. Revisar el panel en tiempo real para el rediseño del sitio web\n2. Confirmar calendario de lanzamiento de planificación de producto\n3. Asistir a la reunión de revisión de materiales visuales de campaña de marketing',
+        codeIds: ['c1', 'c10', 'c16'],
+        attachments: [],
+        created: '2026-06-29T07:11:00.000Z',
+        updated: '2026-06-29T07:11:00.000Z'
+      },
+      {
+        id: 'n2',
+        title: 'Corrección del filtro de notas',
+        content: 'Se completó la corrección de la lógica de filtrado de categorías múltiples de OnlineNote. Se actualizó el algoritmo de filtrado para que se realice la operación OR dentro del mismo grupo de clasificación y se asocie la condición AND entre diferentes clasificaciones.',
+        codeIds: ['c4', 'c6', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:27:00.000Z',
+        updated: '2026-06-29T06:27:00.000Z'
+      },
+      {
+        id: 'n3',
+        title: 'Análisis de registros de servidor e infraestructura',
+        content: 'Prueba de registro de errores de conexión de almacenamiento y distribución de solicitudes de API Gateway completada. Retraso dentro de límites normales.',
+        codeIds: ['c4', 'c9', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:20:00.000Z',
+        updated: '2026-06-29T06:20:00.000Z'
+      }
+    ];
+  } else if (lang === 'fr') {
+    return [
+      {
+        id: 'n1',
+        title: 'Gestion du temps et plan hebdomadaire',
+        content: '1. Examiner le tableau de bord temps réel pour la refonte du site web\n2. Confirmer le calendrier de lancement de planification de produit\n3. Assister à la réunion de revue des visuels de la campagne de marketing',
+        codeIds: ['c1', 'c10', 'c16'],
+        attachments: [],
+        created: '2026-06-29T07:11:00.000Z',
+        updated: '2026-06-29T07:11:00.000Z'
+      },
+      {
+        id: 'n2',
+        title: 'Correction du filtre de notes',
+        content: 'Correction de la logique de filtrage multi-catégories d\'OnlineNote terminée. L\'algorithme a été mis à jour pour effectuer une opération OR au sein du même groupe et une condition AND entre différentes classifications.',
+        codeIds: ['c4', 'c6', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:27:00.000Z',
+        updated: '2026-06-29T06:27:00.000Z'
+      },
+      {
+        id: 'n3',
+        title: 'Analyse des logs serveur et infrastructure',
+        content: 'Test de répartition des requêtes API Gateway et d\'enregistrement des erreurs de stockage réussi. Latence dans les normes.',
+        codeIds: ['c4', 'c9', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:20:00.000Z',
+        updated: '2026-06-29T06:20:00.000Z'
+      }
+    ];
+  } else if (lang === 'de') {
+    return [
+      {
+        id: 'n1',
+        title: 'Zeitmanagement und Wochenplan',
+        content: '1. Dashboard für Webseite-Relaunch in Echtzeit prüfen\n2. Freigabezeitplan für Produktplanung bestätigen\n3. Teilnahme an Besprechung für visuelle Materialien der Marketingkampagne',
+        codeIds: ['c1', 'c10', 'c16'],
+        attachments: [],
+        created: '2026-06-29T07:11:00.000Z',
+        updated: '2026-06-29T07:11:00.000Z'
+      },
+      {
+        id: 'n2',
+        title: 'Korrektur des Notizfilters',
+        content: 'Korrektur der Filterlogik für OnlineNote-Mehrfachkategorien abgeschlossen. Der Filteralgorithmus wurde aktualisiert, sodass innerhalb derselben Gruppe eine OR-Operation durchgeführt wird, während zwischen verschiedenen Klassifizierungen die AND-Bedingung gilt.',
+        codeIds: ['c4', 'c6', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:27:00.000Z',
+        updated: '2026-06-29T06:27:00.000Z'
+      },
+      {
+        id: 'n3',
+        title: 'Serverprotokollanalyse & Infrastrukturverbesserung',
+        content: 'Lastverteilungstest für API-Gateway-Anfragen und Aufzeichnungsfehler der Speicherverbindung abgeschlossen. Latenz im Normalbereich.',
+        codeIds: ['c4', 'c9', 'c17'],
+        attachments: [],
+        created: '2026-06-29T06:20:00.000Z',
+        updated: '2026-06-29T06:20:00.000Z'
+      }
+    ];
+  }
+  // 기본 영어(en) 설정
+  return [
+    {
+      id: 'n1',
+      title: 'Time Management & Weekly Plan',
+      content: '1. Review Web Service Redesign monitoring system real-time dashboard\n2. Check product planning launch schedule\n3. Attend Marketing Campaign visual assets review meeting',
+      codeIds: ['c1', 'c10', 'c16'],
+      attachments: [],
+      created: '2026-06-29T07:11:00.000Z',
+      updated: '2026-06-29T07:11:00.000Z'
+    },
+    {
+      id: 'n2',
+      title: 'Memo Filter Logic Improvement',
+      content: 'Successfully improved OnlineNote multi-category filtering logic. Updated the algorithm to evaluate OR operations within the same group, and AND operations across distinct classification groups.',
+      codeIds: ['c4', 'c6', 'c17'],
+      attachments: [],
+      created: '2026-06-29T06:27:00.000Z',
+      updated: '2026-06-29T06:27:00.000Z'
+    },
+    {
+      id: 'n3',
+      title: 'Server Logs & Infrastructure Optimization',
+      content: 'Completed load testing on API Gateway request routing and database connection error logging. Current latency metrics remain within acceptable bounds.',
+      codeIds: ['c4', 'c9', 'c17'],
+      attachments: [],
+      created: '2026-06-29T06:20:00.000Z',
+      updated: '2026-06-29T06:20:00.000Z'
+    }
+  ];
+};
+
+const DEFAULT_CODES: Code[] = getLocalizedCodes('en');
+const DEFAULT_NOTES: Note[] = getLocalizedNotes('en', DEFAULT_CODES);
 
 // 네비게이션 가로채기를 위한 모듈 레벨 변수 (상태 변경으로 인한 무한 렌더링 방지)
 let globalNavigationInterceptor: ((id: string | null) => Promise<boolean>) | null = null;
 
 export const useStore = create<StoreState>((set, get) => ({
+  user: null,
+  session: null,
+  authInitialized: false,
+  toastMessage: null,
+  toastType: 'info',
   notes: [],
   codes: [],
   codeGroups: [
@@ -218,14 +497,56 @@ export const useStore = create<StoreState>((set, get) => ({
   supabaseAnonKey: typeof window !== 'undefined' ? getSupabaseConfig().key : '',
   isLoading: false,
   
-  // Toast 초기값
-  toastMessage: null,
-  toastType: 'info',
+  // i18n 다국어 상태 정의 (디폴트는 영어 en)
+  currentLang: 'en',
   
-  // Auth 상태 초기값
-  user: null,
-  session: null,
-  authInitialized: false,
+  setLang: (lang) => {
+    // 1. 단순 언어 설정 변경
+    set({ currentLang: lang });
+
+    // 2. 비로그인 상태(샘플 모드)인 경우, 선택한 언어로 샘플 프로젝트 및 코드, 노트를 현지화하여 리셋
+    const user = get().user;
+    const isOffline = get().isOffline;
+    if (!user || isOffline) {
+      const localizedCodes = getLocalizedCodes(lang);
+      const localizedNotes = getLocalizedNotes(lang, localizedCodes);
+
+      // codeGroups 매핑 언어 번역
+      let projGroupName = 'Project';
+      let tagGroupName = 'TAG';
+      let funcGroupName = 'Function';
+      let statusGroupName = 'Status';
+
+      if (lang === 'ko') {
+        projGroupName = '프로젝트'; tagGroupName = 'TAG'; funcGroupName = '기능'; statusGroupName = '진행';
+      } else if (lang === 'ja') {
+        projGroupName = 'プロジェクト'; tagGroupName = 'TAG'; funcGroupName = '機能'; statusGroupName = '進行';
+      } else if (lang === 'zh') {
+        projGroupName = '项目'; tagGroupName = 'TAG'; funcGroupName = '功能'; statusGroupName = '进度';
+      } else if (lang === 'es') {
+        projGroupName = 'Proyecto'; tagGroupName = 'TAG'; funcGroupName = 'Función'; statusGroupName = 'Estado';
+      } else if (lang === 'fr') {
+        projGroupName = 'Projet'; tagGroupName = 'TAG'; funcGroupName = 'Fonction'; statusGroupName = 'Statut';
+      } else if (lang === 'de') {
+        projGroupName = 'Projekt'; tagGroupName = 'TAG'; funcGroupName = 'Funktion'; statusGroupName = 'Status';
+      }
+
+      set({
+        codes: localizedCodes,
+        notes: localizedNotes,
+        codeGroups: [
+          { name: projGroupName, isMultiSelect: false },
+          { name: tagGroupName, isMultiSelect: true },
+          { name: funcGroupName, isMultiSelect: true },
+          { name: statusGroupName, isMultiSelect: false }
+        ],
+        filter: {
+          selectedProject: lang === 'ko' ? '전체' : (lang === 'ja' ? 'すべて' : (lang === 'zh' ? '全部' : 'All')),
+          selectedTags: []
+        }
+      });
+    }
+  },
 
   setSupabaseConfig: (url, key) => {
     updateSupabaseConfig(url, key);
@@ -288,10 +609,20 @@ export const useStore = create<StoreState>((set, get) => ({
         await get().fetchCodes();
         await get().fetchNotes();
       } else {
-        // 비로그인 상태일 때는 셈플(샘플) 데이터를 보여주어 둘러볼 수 있게 함
+        // 비로그인 상태일 때는 셈플(샘플) 데이터를 보여주어 둘러볼 수 있게 함 (초기 설정 en에 맞춰 매핑)
         set({ 
           codes: DEFAULT_CODES, 
           notes: DEFAULT_NOTES, 
+          codeGroups: [
+            { name: 'Project', isMultiSelect: false },
+            { name: 'TAG', isMultiSelect: true },
+            { name: 'Function', isMultiSelect: true },
+            { name: 'Status', isMultiSelect: false }
+          ],
+          filter: {
+            selectedProject: 'All',
+            selectedTags: []
+          },
           isLoading: false 
         });
       }

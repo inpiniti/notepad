@@ -3,6 +3,7 @@ import { useStore, Note, Code } from '@/lib/store';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Search, FileText, Paperclip, Plus, X } from 'lucide-react';
+import { translations } from '@/lib/translations';
 
 interface NoteListProps {
   onOpenEditorMobile?: () => void;
@@ -16,6 +17,10 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
     activeNoteId,
     requestNavigation
   } = useStore();
+
+  const currentLang = useStore(state => state.currentLang);
+  const t = translations[currentLang];
+  const projectGroupKeys = ['프로젝트', 'Project', 'プロジェクト', '项目', 'Proyecto', 'Projet', 'Projekt'];
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -94,14 +99,14 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="노트 제목, 본문 검색..."
+            placeholder={t.searchPlaceholder}
             className="h-8 pl-8 pr-7 text-xs bg-slate-50 border-slate-100 hover:bg-slate-100/50 transition-colors rounded-lg focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50 shadow-none"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
-              title="검색어 초기화"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-650 transition-colors"
+              title={currentLang === 'ko' ? "검색어 초기화" : "Reset search query"}
             >
               <X className="w-3 h-3" />
             </button>
@@ -110,7 +115,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
         <button
           onClick={handleAddNewNote}
           className="h-8 w-8 bg-indigo-600 hover:bg-indigo-700 active:scale-95 hover:scale-102 text-white rounded-lg transition-all shadow-xs flex items-center justify-center shrink-0"
-          title="새 노트 작성"
+          title={t.newNoteTitle}
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -118,7 +123,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
 
       {/* 헤더 요약 */}
       <div className="flex items-center justify-between text-xs text-slate-400 font-medium px-4 py-2 shrink-0">
-        <span>총 {filteredNotes.length}개의 노트</span>
+        <span>{t.totalNotes(filteredNotes.length)}</span>
       </div>
 
       {/* 노트 카드 목록 스크롤 뷰 */}
@@ -131,8 +136,8 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
             .map(cid => codes.find(c => c.id === cid))
             .filter((c): c is Code => !!c);
             
-          const projectCodes = noteCodes.filter(c => c.group === '프로젝트');
-          const tagCodes = noteCodes.filter(c => c.group !== '프로젝트');
+          const projectCodes = noteCodes.filter(c => projectGroupKeys.includes(c.group));
+          const tagCodes = noteCodes.filter(c => !projectGroupKeys.includes(c.group));
 
           return (
             <div
@@ -152,10 +157,10 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
                   <h4 className={`text-xs truncate transition-colors ${
                     isSelected ? 'text-indigo-900 font-bold' : 'text-slate-700 font-medium'
                   }`}>
-                    {note.title.trim() === '' ? '제목 없음' : note.title}
+                    {note.title.trim() === '' ? (currentLang === 'ko' ? '제목 없음' : 'Untitled') : note.title}
                   </h4>
                   {note.attachments.length > 0 && (
-                    <div className="flex items-center gap-0.5 text-slate-400 shrink-0" title="첨부파일 있음">
+                    <div className="flex items-center gap-0.5 text-slate-400 shrink-0" title={currentLang === 'ko' ? '첨부파일 있음' : 'Has attachment'}>
                       <Paperclip className="w-3 h-3" />
                       <span className="text-[8px] font-bold">{note.attachments.length}</span>
                     </div>
@@ -190,8 +195,12 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
         {filteredNotes.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-100 p-8">
             <FileText className="w-8 h-8 text-slate-300 mb-2" />
-            <h5 className="font-semibold text-slate-700 text-sm">일치하는 노트가 없습니다</h5>
-            <p className="text-xs text-slate-400 mt-1 max-w-[200px]">필터를 변경하거나 검색어를 재설정해 보세요.</p>
+            <h5 className="font-semibold text-slate-700 text-sm">
+              {currentLang === 'ko' ? '일치하는 노트가 없습니다' : 'No matching notes'}
+            </h5>
+            <p className="text-xs text-slate-400 mt-1 max-w-[200px]">
+              {currentLang === 'ko' ? '필터를 변경하거나 검색어를 재설정해 보세요.' : 'Try changing filters or search keywords.'}
+            </p>
           </div>
         )}
       </div>

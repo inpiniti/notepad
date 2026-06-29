@@ -17,8 +17,10 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
-  Info
+  Info,
+  Globe
 } from 'lucide-react';
+import { translations, LangType } from '@/lib/translations';
 
 export default function App() {
   const {
@@ -34,8 +36,12 @@ export default function App() {
     logout,
     toastMessage,
     toastType,
-    hideToast
+    hideToast,
+    currentLang,
+    setLang
   } = useStore();
+
+  const t = translations[currentLang] || translations.en;
 
   // 모바일 오버레이 상태
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -76,24 +82,25 @@ export default function App() {
             <BookOpen className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h1 className="text-xs font-bold text-slate-950 tracking-tight">필터패드 (FilterPad)</h1>
-            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">강력한 분류 매핑 & 실시간 동기화 메모장</p>
+            <h1 className="text-xs font-bold text-slate-950 tracking-tight">{t.appTitle}</h1>
+            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">{t.appSubtitle}</p>
           </div>
         </div>
 
-        {/* 데스크탑용 선택된 필터 배지 리스트 (Supabase 연동 상태 배지 대체) */}
-        <div className="hidden md:flex items-center gap-1.5 shrink-0 max-w-[50%] select-none">
-          {filter.selectedProject !== '전체' && (
+        {/* 데스크탑용 선택된 필터 배지 리스트 */}
+        <div className="hidden lg:flex items-center gap-1.5 shrink-0 max-w-[40%] select-none">
+          {filter.selectedProject !== (currentLang === 'ko' ? '전체' : (currentLang === 'ja' ? 'すべて' : (currentLang === 'zh' ? '全部' : 'All'))) && (
             <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-indigo-50/30 text-indigo-700">
               <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-indigo-500/80" />
               <span className="max-w-[100px] truncate">{filter.selectedProject}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedProject('전체');
+                  const allKeyword = currentLang === 'ko' ? '전체' : (currentLang === 'ja' ? 'すべて' : (currentLang === 'zh' ? '全部' : 'All'));
+                  setSelectedProject(allKeyword);
                 }}
                 className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors shrink-0"
-                title="프로젝트 필터 해제"
+                title="Clear Project Filter"
               >
                 <X className="w-2 h-2" />
               </button>
@@ -110,7 +117,7 @@ export default function App() {
                   toggleSelectedTag(tag);
                 }}
                 className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors shrink-0"
-                title="태그 필터 해제"
+                title="Clear Tag Filter"
               >
                 <X className="w-2 h-2" />
               </button>
@@ -118,35 +125,55 @@ export default function App() {
           ))}
         </div>
 
-        {/* 로그아웃 및 계정 정보 / 로그인 버튼 (비로그인 상태 시) */}
-        {!isOffline && user ? (
-          <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-4 select-none">
-            <div className="hidden sm:flex flex-col text-right">
-              <span className="text-[9px] font-bold text-slate-450 leading-none">로그인 계정</span>
-              <span className="text-[10px] font-semibold text-slate-600 truncate max-w-[120px] mt-0.5" title={user.email}>
-                {user.email}
-              </span>
+        {/* 우측 유틸리티 영역 (언어 선택기 + 인증) */}
+        <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-4 select-none">
+          {/* 다국어 언어 셀렉트 박스 */}
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 h-6.5">
+            <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <select
+              value={currentLang}
+              onChange={(e) => setLang(e.target.value as LangType)}
+              className="text-[9.5px] font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0"
+            >
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+              <option value="ja">日本語</option>
+              <option value="zh">中文</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+
+          {!isOffline && user ? (
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex flex-col text-right">
+                <span className="text-[9px] font-bold text-slate-450 leading-none">{t.loginState}</span>
+                <span className="text-[10px] font-semibold text-slate-600 truncate max-w-[120px] mt-0.5" title={user.email}>
+                  {user.email}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="h-6.5 text-[9.5px] border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-bold rounded-lg cursor-pointer px-2"
+              >
+                {t.logout}
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={logout}
-              className="h-6.5 text-[9.5px] border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-bold rounded-lg cursor-pointer px-2"
-            >
-              로그아웃
-            </Button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 shrink-0 ml-auto md:ml-4 select-none">
-            <span className="hidden sm:inline text-[10px] font-bold text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">샘플 모드</span>
-            <Button
-              onClick={() => setIsLoginModalOpen(true)}
-              className="h-6.5 text-[9.5px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg cursor-pointer px-3 shadow-sm shadow-indigo-600/10"
-            >
-              로그인
-            </Button>
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline text-[10px] font-bold text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">{t.sampleMode}</span>
+              <Button
+                onClick={() => setIsLoginModalOpen(true)}
+                className="h-6.5 text-[9.5px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg cursor-pointer px-3 shadow-sm shadow-indigo-600/10"
+              >
+                {t.loginBtn}
+              </Button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* 2. 메인 컨텐츠 영역 */}

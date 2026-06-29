@@ -15,13 +15,14 @@ import {
   FileUp,
   AlertCircle
 } from 'lucide-react';
+import { translations } from '@/lib/translations';
 
 interface NoteEditorProps {
   onCloseMobile?: () => void;
 }
 
 // 기존 첨부파일 전용 컴포넌트 (이미지 썸네일 지원)
-function ExistingAttachmentItem({ fileUrl, index, onRemove }: { fileUrl: string, index: number, onRemove: () => void }) {
+function ExistingAttachmentItem({ fileUrl, index, onRemove, lang }: { fileUrl: string, index: number, onRemove: () => void, lang: string }) {
   const decodedUrl = decodeURIComponent(fileUrl);
   let displayName = '';
   
@@ -34,7 +35,8 @@ function ExistingAttachmentItem({ fileUrl, index, onRemove }: { fileUrl: string,
   } catch (e) {}
   
   if (!displayName) {
-    const filename = decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1).split('?')[0] || `이전 파일 ${index + 1}`;
+    const defaultName = lang === 'ko' ? '이전 파일' : 'Previous file';
+    const filename = decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1).split('?')[0] || `${defaultName} ${index + 1}`;
     displayName = filename.replace(/^\d+_/, '');
   }
 
@@ -60,7 +62,9 @@ function ExistingAttachmentItem({ fileUrl, index, onRemove }: { fileUrl: string,
           <a href={fileUrl} target="_blank" rel="noreferrer" className="hover:underline font-semibold text-slate-800 truncate">
             {displayName}
           </a>
-          <span className="text-[9px] text-slate-400 font-normal leading-none mt-0.5">서버에 저장됨</span>
+          <span className="text-[9px] text-slate-400 font-normal leading-none mt-0.5">
+            {lang === 'ko' ? '서버에 저장됨' : 'Saved on server'}
+          </span>
         </div>
       </div>
       <button
@@ -75,7 +79,7 @@ function ExistingAttachmentItem({ fileUrl, index, onRemove }: { fileUrl: string,
 }
 
 // 신규 추가 중인 파일 전용 컴포넌트 (메모리 누수 방지 Blob URL 관리 및 썸네일 지원)
-function NewFilePreviewItem({ file, onRemove }: { file: File, onRemove: () => void }) {
+function NewFilePreviewItem({ file, onRemove, lang }: { file: File, onRemove: () => void, lang: string }) {
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -106,7 +110,9 @@ function NewFilePreviewItem({ file, onRemove }: { file: File, onRemove: () => vo
         )}
         <div className="flex flex-col min-w-0">
           <span className="truncate text-slate-800 font-semibold">{file.name}</span>
-          <span className="text-[9px] text-indigo-500 font-normal leading-none mt-0.5">업로드 대기 중</span>
+          <span className="text-[9px] text-indigo-500 font-normal leading-none mt-0.5">
+            {lang === 'ko' ? '업로드 대기 중' : 'Waiting for upload'}
+          </span>
         </div>
       </div>
       <button
@@ -132,8 +138,14 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     requestNavigation,
     setNavigationInterceptor,
     isOffline,
-    showToast
+    showToast,
+    currentLang
   } = useStore();
+
+  const t = translations[currentLang] || translations.en;
+  const projectGroupKeys = ['프로젝트', 'Project', 'プロジェクト', '项目', 'Proyecto', 'Projet', 'Projekt'];
+  const projectGroupName = Array.from(new Set(codes.map(c => c.group)))
+    .find(g => projectGroupKeys.includes(g)) || 'Project';
 
   // 에디터 상태
   const [title, setTitle] = useState('');
@@ -148,9 +160,9 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const currentNote = notes.find(n => n.id === activeNoteId);
-  const projects = codes.filter(c => c.group === '프로젝트');
+  const projects = codes.filter(c => c.group === projectGroupName);
   const otherGroups = Array.from(new Set(codes.map(c => c.group)))
-    .filter(g => g !== '프로젝트')
+    .filter(g => g !== projectGroupName)
     .sort();
 
   // 노트 로드 시 상태 초기화
@@ -162,11 +174,11 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       setExistingAttachments(currentNote.attachments || []);
       setErrorMsg('');
 
-      const projectCode = codes.find(c => c.group === '프로젝트' && currentNote.codeIds.includes(c.id));
+      const projectCode = codes.find(c => c.group === projectGroupName && currentNote.codeIds.includes(c.id));
       setSelectedProjectId(projectCode ? projectCode.id : '');
 
       const noteTags = codes
-        .filter(c => c.group !== '프로젝트' && currentNote.codeIds.includes(c.id))
+        .filter(c => c.group !== projectGroupName && currentNote.codeIds.includes(c.id))
         .map(c => c.id);
       setSelectedTagIds(noteTags);
     } else {
@@ -178,7 +190,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       setExistingAttachments([]);
       setErrorMsg('');
     }
-  }, [activeNoteId, currentNote, codes]);
+  }, [activeNoteId, currentNote, codes, projectGroupName]);
 
   // 본문 내용 높이 자동 조절 (Auto-resize)
   useEffect(() => {
@@ -253,10 +265,10 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     if (!currentNote) {
       return title.trim() !== '' || content.trim() !== '' || selectedProjectId !== '' || selectedTagIds.length > 0 || newFiles.length > 0;
     }
-    const originalProjectCode = codes.find(c => c.group === '프로젝트' && currentNote.codeIds.includes(c.id));
+    const originalProjectCode = codes.find(c => c.group === projectGroupName && currentNote.codeIds.includes(c.id));
     const originalProjectId = originalProjectCode ? originalProjectCode.id : '';
     const originalTagIds = codes
-        .filter(c => c.group !== '프로젝트' && currentNote.codeIds.includes(c.id))
+        .filter(c => c.group !== projectGroupName && currentNote.codeIds.includes(c.id))
         .map(c => c.id);
     
     const tagsChanged = originalTagIds.length !== selectedTagIds.length || !originalTagIds.every(id => selectedTagIds.includes(id));
@@ -268,7 +280,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
            tagsChanged ||
            newFiles.length > 0 ||
            attachmentsChanged;
-  }, [currentNote, title, content, selectedProjectId, selectedTagIds, newFiles, existingAttachments, codes]);
+  }, [currentNote, title, content, selectedProjectId, selectedTagIds, newFiles, existingAttachments, codes, projectGroupName]);
 
   // 저장 요청
   const handleSave = async (): Promise<boolean> => {
@@ -280,10 +292,10 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     try {
       if (activeNoteId) {
         await updateNote(activeNoteId, title, content, combinedCodeIds, newFiles, existingAttachments);
-        showToast('노트가 저장되었습니다.', 'success');
+        showToast(t.toastSaveSuccess, 'success');
       } else {
         await addNote(title, content, combinedCodeIds, newFiles);
-        showToast('새 노트가 작성되었습니다.', 'success');
+        showToast(currentLang === 'ko' ? '새 노트가 작성되었습니다.' : 'New note created.', 'success');
         // 신규 노트의 경우 저장 후 폼을 비움
         setTitle('');
         setContent('');
@@ -294,8 +306,8 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       }
       return true;
     } catch (err: any) {
-      setErrorMsg(err.message || '저장 중 오류가 발생했습니다.');
-      showToast('저장에 실패했습니다.', 'error');
+      setErrorMsg(err.message || (currentLang === 'ko' ? '저장 중 오류가 발생했습니다.' : 'An error occurred while saving.'));
+      showToast(t.toastSaveError, 'error');
       return false;
     }
   };
@@ -304,7 +316,10 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
   useEffect(() => {
     setNavigationInterceptor(async (targetId) => {
       if (!isDirty) return true;
-      const wantToSave = window.confirm('작성 중인 내용이 있습니다.\n\n[확인]을 누르면 저장하고 이동(저장)하며,\n[취소]를 누르면 저장하지 않고 이동(나가기)합니다.\n\n현재 화면을 유지하려면 브라우저 뒤로가기나 모달 외부를 누르거나 이 창을 닫아주세요.');
+      const confirmMsg = currentLang === 'ko' 
+        ? '작성 중인 내용이 있습니다.\n\n[확인]을 누르면 저장하고 이동(저장)하며,\n[취소]를 누르면 저장하지 않고 이동(나가기)합니다.\n\n현재 화면을 유지하려면 브라우저 뒤로가기나 모달 외부를 누르거나 이 창을 닫아주세요.'
+        : 'You have unsaved changes.\n\nClick [OK] to save and continue,\n[Cancel] to discard and leave.\n\nTo stay on this page, click outside or close this window.';
+      const wantToSave = window.confirm(confirmMsg);
       if (wantToSave) {
         const success = await handleSave();
         return success; // 저장이 완료되어야 이동 허용
@@ -312,18 +327,21 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       return true; // 저장하지 않기로 했으면 그냥 이동 (나가기)
     });
     return () => setNavigationInterceptor(null);
-  }, [isDirty, handleSave, setNavigationInterceptor]);
+  }, [isDirty, handleSave, setNavigationInterceptor, currentLang]);
 
   // 삭제 요청
   const handleDelete = async () => {
     if (!activeNoteId) return;
-    if (!window.confirm('이 노트를 삭제하시겠습니까?\n삭제한 노트는 복구할 수 없습니다.')) return;
+    const confirmMsg = currentLang === 'ko'
+      ? '이 노트를 삭제하시겠습니까?\n삭제한 노트는 복구할 수 없습니다.'
+      : 'Are you sure you want to delete this note?\nDeleted notes cannot be recovered.';
+    if (!window.confirm(confirmMsg)) return;
     try {
       await deleteNote(activeNoteId);
-      showToast('노트가 삭제되었습니다.', 'success');
+      showToast(t.toastDeleteSuccess, 'success');
       if (onCloseMobile) onCloseMobile();
     } catch {
-      showToast('삭제에 실패했습니다.', 'error');
+      showToast(currentLang === 'ko' ? '삭제에 실패했습니다.' : 'Failed to delete note.', 'error');
     }
   };
 
@@ -341,11 +359,12 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
     if (imageFiles.length > 0) {
       e.preventDefault();
       setNewFiles(prev => [...prev, ...imageFiles]);
-      showToast(`이미지 ${imageFiles.length}개가 첸부파일로 추가되었습니다.`, 'info');
+      const pasteMsg = currentLang === 'ko'
+        ? `이미지 ${imageFiles.length}개가 첨부파일로 추가되었습니다.`
+        : `${imageFiles.length} image(s) added as attachments.`;
+      showToast(pasteMsg, 'info');
     }
-  }, [showToast]);
-
-
+  }, [showToast, currentLang]);
 
   // 취소/뒤로가기
   const handleCancel = async () => {
@@ -377,11 +396,11 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           )}
           <div className="flex flex-col">
             <h3 className="font-semibold text-slate-900 text-xs leading-tight">
-              {activeNoteId ? '노트 수정' : '새 노트 작성'}
+              {activeNoteId ? (currentLang === 'ko' ? '노트 수정' : 'Edit Note') : t.newNoteTitle}
             </h3>
             {currentNote && (
               <span className="text-[9px] text-slate-400 font-normal leading-none mt-1">
-                작성: {formatDate(currentNote.created)} {currentNote.updated !== currentNote.created && `(수정: ${formatDate(currentNote.updated)})`}
+                {currentLang === 'ko' ? '작성' : 'Created'}: {formatDate(currentNote.created)} {currentNote.updated !== currentNote.created && `(${currentLang === 'ko' ? '수정' : 'Edited'}: ${formatDate(currentNote.updated)})`}
               </span>
             )}
           </div>
@@ -389,7 +408,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         
         <div className="flex items-center gap-1">
           {activeNoteId && (
-            <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7 rounded-md" title="삭제">
+            <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7 rounded-md" title={currentLang === 'ko' ? '삭제' : 'Delete'}>
               <Trash2 className="w-3.5 h-3.5" />
             </Button>
           )}
@@ -399,7 +418,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-xs text-[10px] font-semibold flex items-center gap-1 h-7 px-2.5"
           >
             <Save className="w-3 h-3" />
-            <span>저장</span>
+            <span>{t.save}</span>
           </Button>
         </div>
       </div>
@@ -415,11 +434,13 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
       <div className="flex-1 overflow-y-auto space-y-4 pl-4 pr-3 py-3">
         {/* 제목 입력 */}
         <div className="space-y-1">
-          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">제목</label>
+          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+            {currentLang === 'ko' ? '제목' : 'Title'}
+          </label>
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="노트 제목을 입력하세요"
+            placeholder={t.noteTitlePlaceholder}
             className="text-xs font-semibold h-8 rounded-lg border-slate-200"
           />
         </div>
@@ -428,7 +449,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         <div className="space-y-1">
           <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
             <FolderPlus className="w-3 h-3 text-indigo-400" />
-            <span>연관 프로젝트 지정</span>
+            <span>{currentLang === 'ko' ? '연관 프로젝트 지정' : 'Assign Project'}</span>
           </label>
           <div className="flex flex-wrap gap-1.5">
             <button
@@ -440,7 +461,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
-              미지정
+              {currentLang === 'ko' ? '미지정' : 'Unassigned'}
             </button>
             {projects.map(p => (
               <button
@@ -466,7 +487,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             <div key={groupName} className="space-y-1">
               <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Tag className="w-3 h-3 text-indigo-400" />
-                <span>연관 {groupName} 지정</span>
+                <span>{currentLang === 'ko' ? `연관 ${groupName} 지정` : `Assign ${groupName}`}</span>
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {groupCodes.map(c => {
@@ -490,7 +511,9 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
                   );
                 })}
                 {groupCodes.length === 0 && (
-                  <p className="text-[9px] text-slate-400 py-0.5">등록된 분류 항목이 없습니다.</p>
+                  <p className="text-[9px] text-slate-400 py-0.5">
+                    {currentLang === 'ko' ? '등록된 분류 항목이 없습니다.' : 'No items found.'}
+                  </p>
                 )}
               </div>
             </div>
@@ -499,12 +522,14 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
 
         {/* 내용 입력 */}
         <div className="space-y-1">
-          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">본문 내용</label>
+          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+            {currentLang === 'ko' ? '본문 내용' : 'Content'}
+          </label>
           <Textarea
             ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="여기에 생각이나 작업 내용을 기록해 보세요..."
+            placeholder={t.noteContentPlaceholder}
             className="min-h-[160px] leading-relaxed border-slate-100 hover:border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-600 focus-visible:border-indigo-600 text-xs resize-none overflow-hidden"
           />
         </div>
@@ -513,7 +538,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         <div className="space-y-1.5">
           <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
             <Paperclip className="w-3 h-3 text-indigo-400" />
-            <span>첨부파일</span>
+            <span>{currentLang === 'ko' ? '첨부파일' : 'Attachments'}</span>
           </label>
 
           {/* 드래그 앤 드롭 존 + 클립보드 붙여넣기 */}
@@ -533,9 +558,11 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             />
             <FileUp className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
             <div className="text-[10px] font-semibold text-slate-600">
-              파일을 마우스로 끌어다 놓거나 클릭하여 선택, 또는 이미지를 클립보드에서 붙여넣기하세요
+              {currentLang === 'ko' ? '파일을 마우스로 끌어다 놓거나 클릭하여 선택, 또는 이미지를 클립보드에서 붙여넣기하세요' : 'Drag and drop files here, click to select, or paste images from the clipboard'}
             </div>
-            <p className="text-[9px] text-slate-400">이미지, 문서 등 형식 제한 없음 · Ctrl+V 붙여넣기 지원</p>
+            <p className="text-[9px] text-slate-400">
+              {currentLang === 'ko' ? '이미지, 문서 등 형식 제한 없음 · Ctrl+V 붙여넣기 지원' : 'No format restrictions for images, documents, etc. · Ctrl+V supported'}
+            </p>
           </div>
 
           {/* 첨부된 파일 리스트 */}
@@ -548,6 +575,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
                   fileUrl={fileUrl}
                   index={index}
                   onRemove={() => handleRemoveExistingAttachment(fileUrl)}
+                  lang={currentLang}
                 />
               ))}
 
@@ -557,6 +585,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
                   key={`${file.name}-${index}`}
                   file={file}
                   onRemove={() => handleRemoveNewFile(index)}
+                  lang={currentLang}
                 />
               ))}
             </div>

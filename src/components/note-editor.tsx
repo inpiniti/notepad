@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useStore, Code, Note } from '@/lib/store';
+import { Dialog } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -158,6 +159,13 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // 커스텀 확인 창 관련 상태 (이동 가드 용)
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const confirmResolveRef = useRef<((value: boolean) => void) | null>(null);
+
+  // 커스텀 삭제 창 관련 상태
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   
   const currentNote = notes.find(n => n.id === activeNoteId);
   const projects = codes.filter(c => c.group === projectGroupName);
@@ -316,26 +324,48 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
   useEffect(() => {
     setNavigationInterceptor(async (targetId) => {
       if (!isDirty) return true;
-      const confirmMsg = currentLang === 'ko' 
-        ? '작성 중인 내용이 있습니다.\n\n[확인]을 누르면 저장하고 이동(저장)하며,\n[취소]를 누르면 저장하지 않고 이동(나가기)합니다.\n\n현재 화면을 유지하려면 브라우저 뒤로가기나 모달 외부를 누르거나 이 창을 닫아주세요.'
-        : 'You have unsaved changes.\n\nClick [OK] to save and continue,\n[Cancel] to discard and leave.\n\nTo stay on this page, click outside or close this window.';
-      const wantToSave = window.confirm(confirmMsg);
-      if (wantToSave) {
-        const success = await handleSave();
-        return success; // 저장이 완료되어야 이동 허용
-      }
-      return true; // 저장하지 않기로 했으면 그냥 이동 (나가기)
+      setConfirmOpen(true);
+      return new Promise<boolean>((resolve) => {
+        confirmResolveRef.current = resolve;
+      });
     });
     return () => setNavigationInterceptor(null);
-  }, [isDirty, handleSave, setNavigationInterceptor, currentLang]);
+  }, [isDirty, setNavigationInterceptor]);
+
+  const handleConfirmSave = async () => {
+    setConfirmOpen(false);
+    const success = await handleSave();
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(success);
+      confirmResolveRef.current = null;
+    }
+  };
+
+  const handleConfirmDiscard = () => {
+    setConfirmOpen(false);
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(true);
+      confirmResolveRef.current = null;
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmOpen(false);
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(false);
+      confirmResolveRef.current = null;
+    }
+  };
 
   // 삭제 요청
   const handleDelete = async () => {
     if (!activeNoteId) return;
-    const confirmMsg = currentLang === 'ko'
-      ? '이 노트를 삭제하시겠습니까?\n삭제한 노트는 복구할 수 없습니다.'
-      : 'Are you sure you want to delete this note?\nDeleted notes cannot be recovered.';
-    if (!window.confirm(confirmMsg)) return;
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleteConfirmOpen(false);
+    if (!activeNoteId) return;
     try {
       await deleteNote(activeNoteId);
       showToast(t.toastDeleteSuccess, 'success');
@@ -592,6 +622,72 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           )}
         </div>
       </div>
+
+      {/* 커스텀 이동 확인 모달 (나가기 / 저장 / 취소) */}
+      <Dialog
+        isOpen={confirmOpen}
+        onClose={handleConfirmCancel}
+        title={currentLang === 'ko' ? '저장되지 않은 변경사항' : 'Unsaved Changes'}
+        className="p-5 max-w-sm"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-line">
+            {currentLang === 'ko' 
+              ? '수정 중인 내용이 있습니다. 작성 중인 내용을 저장하고 이동할까요?' 
+              : 'You have unsaved changes. Would you like to save before leaving?'}
+          </p>
+          <div className="flex flex-col gap-2 pt-2">
+            <button
+              onClick={handleConfirmSave}
+              className="w-full h-9.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center cursor-pointer transition-colors"
+            >
+              {currentLang === 'ko' ? '저장하고 이동' : 'Save and Leave'}
+            </button>
+            <button
+              onClick={handleConfirmDiscard}
+              className="w-full h-9.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+            >
+              {currentLang === 'ko' ? '저장 안 함 (나가기)' : "Don't Save (Leave)"}
+            </button>
+            <button
+              onClick={handleConfirmCancel}
+              className="w-full h-9.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 text-xs font-semibold rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+            >
+              {currentLang === 'ko' ? '취소 (현재 창 유지)' : 'Cancel (Stay)'}
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* 커스텀 삭제 확인 모달 */}
+      <Dialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        title={currentLang === 'ko' ? '노트 삭제' : 'Delete Note'}
+        className="p-5 max-w-sm"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500 leading-relaxed whitespace-pre-line">
+            {currentLang === 'ko' 
+              ? '정말로 이 노트를 삭제하시겠습니까?\n삭제한 뒤에는 복구할 수 없습니다.' 
+              : 'Are you sure you want to delete this note?\nThis action cannot be undone.'}
+          </p>
+          <div className="flex gap-2.5 pt-2">
+            <button
+              onClick={() => setDeleteConfirmOpen(false)}
+              className="flex-1 h-9.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+            >
+              {currentLang === 'ko' ? '취소' : 'Cancel'}
+            </button>
+            <button
+              onClick={handleConfirmDelete}
+              className="flex-1 h-9.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center cursor-pointer transition-colors"
+            >
+              {currentLang === 'ko' ? '삭제하기' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -105,28 +105,28 @@ const getStoragePathFromUrl = (url: string): string | null => {
 
 const DEFAULT_CODES: Code[] = [
   // 1) 프로젝트 (대분류)
-  { id: 'c1', group: '프로젝트', name: 'FMS' },
-  { id: 'c2', group: '프로젝트', name: '가스링크' },
-  { id: 'c3', group: '프로젝트', name: 'SPC(정압기압력자동조절장치)' },
-  { id: 'c4', group: '프로젝트', name: '홈페이지' },
-  { id: 'c5', group: '프로젝트', name: '토이' },
+  { id: 'c1', group: '프로젝트', name: '마케팅 캠페인' },
+  { id: 'c2', group: '프로젝트', name: '신제품 기획' },
+  { id: 'c3', group: '프로젝트', name: '고객 지원 채널' },
+  { id: 'c4', group: '프로젝트', name: '웹 서비스 리뉴얼' },
+  { id: 'c5', group: '프로젝트', name: '개인 서재 정리' },
 
   // 2) TAG (소분류)
   { id: 'c6', group: 'TAG', name: '메모' },
-  { id: 'c7', group: 'TAG', name: '쿼리' },
-  { id: 'c8', group: 'TAG', name: '요청' },
-  { id: 'c9', group: 'TAG', name: '서버정보' },
-  { id: 'c10', group: 'TAG', name: '회의' },
-  { id: 'c11', group: 'TAG', name: '업무보고' },
+  { id: 'c7', group: 'TAG', name: '아이디어' },
+  { id: 'c8', group: 'TAG', name: '피드백' },
+  { id: 'c9', group: 'TAG', name: '참고자료' },
+  { id: 'c10', group: 'TAG', name: '회의록' },
+  { id: 'c11', group: 'TAG', name: '할일' },
 
   // 3) 기능
-  { id: 'c12', group: '기능', name: '점검' },
-  { id: 'c13', group: '기능', name: '검침' },
-  { id: 'c14', group: '기능', name: '시설전' },
-  { id: 'c15', group: '기능', name: 'gateway' },
+  { id: 'c12', group: '기능', name: '기획' },
+  { id: 'c13', group: '기능', name: '디자인' },
+  { id: 'c14', group: '기능', name: '개발' },
+  { id: 'c15', group: '기능', name: '퍼블리싱' },
 
   // 4) 진행
-  { id: 'c16', group: '진행', name: '미완료' },
+  { id: 'c16', group: '진행', name: '대기' },
   { id: 'c17', group: '진행', name: '완료' }
 ];
 
@@ -134,26 +134,26 @@ const DEFAULT_NOTES: Note[] = [
   {
     id: 'n1',
     title: '시간관리 및 주간 주요 계획',
-    content: '1. FMS 모니터링 시스템 실시간 대시보드 점검\n2. 가스링크 프로젝트 배포 일정 확인\n3. SPC 압력 조절 알고리즘 보완 회의 참석 예정',
-    codeIds: ['c1', 'c10', 'c16'], // FMS, 회의, 미완료
+    content: '1. 웹 서비스 리뉴얼 모니터링 시스템 실시간 대시보드 검토\n2. 신제품 기획 배포 및 런칭 일정 확인\n3. 마케팅 캠페인 시각 자료 보완 회의 참석 예정',
+    codeIds: ['c1', 'c10', 'c16'], // 마케팅 캠페인, 회의록, 대기
     attachments: [],
     created: '2026-06-29T07:11:00.000Z',
     updated: '2026-06-29T07:11:00.000Z'
   },
   {
     id: 'n2',
-    title: '메모 필터 기능 수정',
-    content: '프로젝트와 태그 조합 필터링 시 동일 그룹 내에서는 OR 연산이 수행되고 다른 분류 간에는 AND 조건이 매핑되도록 note-list.tsx의 필터 알고리즘을 갱신하였습니다.',
-    codeIds: ['c5', 'c6', 'c17'], // 토이, 메모, 완료
+    title: '메모 필터 기능 수정 내역',
+    content: '필터패드(FilterPad)의 다중 카테고리 조합 필터링 로직 수정 완료. 동일 분류 그룹 내에서는 OR 연산이 수행되고 다른 분류 간에는 AND 조건이 매핑되도록 필터링 알고리즘을 갱신하였습니다.',
+    codeIds: ['c4', 'c6', 'c17'], // 웹 서비스 리뉴얼, 메모, 완료
     attachments: [],
     created: '2026-06-29T06:27:00.000Z',
     updated: '2026-06-29T06:27:00.000Z'
   },
   {
     id: 'n3',
-    title: '서버 로그 모니터링 배치 결과',
-    content: 'API 게이트웨이 요청 분산 처리 및 Supabase 스토리지 연결 에러 빈도 로깅 테스트를 완료했습니다. 현재 헬스 체크 결과 지연 시간 정상 범위 이내입니다.',
-    codeIds: ['c5', 'c6', 'c17'], // 토이, 메모, 완료
+    title: '서버 로그 분석 및 인프라 개선',
+    content: 'API 게이트웨이 요청 분산 처리 및 스토리지 연결 상태의 에러 빈도 로깅 테스트를 완료했습니다. 현재 모니터링 결과 지연 시간 정상 범위 이내입니다.',
+    codeIds: ['c4', 'c9', 'c17'], // 웹 서비스 리뉴얼, 참고자료, 완료
     attachments: [],
     created: '2026-06-29T06:20:00.000Z',
     updated: '2026-06-29T06:20:00.000Z'
@@ -162,34 +162,34 @@ const DEFAULT_NOTES: Note[] = [
     id: 'n4',
     title: '궁극적 업무 목표 정리',
     content: '- 다목적 웹 메모장 필터패드(FilterPad)의 배포 자동화 파이프라인 구축\n- 모바일 반응형 뷰포트(Elastic Scroll 방지 포함) UI 검증 완료하기',
-    codeIds: ['c5', 'c6', 'c16'], // 토이, 메모, 미완료
+    codeIds: ['c4', 'c11', 'c16'], // 웹 서비스 리뉴얼, 할일, 대기
     attachments: [],
     created: '2026-06-29T05:14:00.000Z',
     updated: '2026-06-29T05:14:00.000Z'
   },
   {
     id: 'n5',
-    title: 'gateway 라우터 작업',
-    content: '정압기 압력 자동조절장치(SPC) 통신 게이트웨이 연동 완료. 수집 신호 처리 지연 현상 개선하기 위한 스레드풀 분산 검증 진행 중.',
-    codeIds: ['c3', 'c15', 'c16'], // SPC, gateway, 미완료
+    title: '고객 지원 채널 개설 참고자료',
+    content: '실시간 피드백 처리용 웹소켓 모듈 연동 진행 완료. 동시 접속자 신호 처리 지연 현상 개선하기 위한 스레드풀 분산 검증 진행 중.',
+    codeIds: ['c3', 'c14', 'c16'], // 고객 지원 채널, 개발, 대기
     attachments: [],
     created: '2026-06-25T16:54:00.000Z',
     updated: '2026-06-25T16:54:00.000Z'
   },
   {
     id: 'n6',
-    title: '가스링크 정검물가 보일러 공급안전점검',
-    content: '가스공급 시설전 보일러 연동 안전 점검표 작성 및 서명 처리 진행. 시설 관련 점검 결과 특이사항 없음.',
-    codeIds: ['c2', 'c12', 'c17'], // 가스링크, 점검, 완료
+    title: '신제품 홍보용 상세 랜딩페이지 디자인',
+    content: '메인 제품 마케팅용 디자인 시안 컨셉 선정 완료. 반응형 스타일 가이드에 맞춰 레이아웃 교정 및 시범 적용 검증 완료.',
+    codeIds: ['c2', 'c13', 'c17'], // 신제품 기획, 디자인, 완료
     attachments: [],
     created: '2026-06-25T14:49:00.000Z',
     updated: '2026-06-25T14:49:00.000Z'
   },
   {
     id: 'n7',
-    title: 'FMS 조정기 필터교체 관련 기능 보완',
-    content: '조정기 필터 교체 주기 알림 기능 보완 요청 반영. 사용자 인터페이스 측면에서 키보드 스크롤 튐 문제 수정함.',
-    codeIds: ['c1', 'c8', 'c16'], // FMS, 요청, 미완료
+    title: '사용자 피드백 수집 및 요구사항 반영',
+    content: '모바일 및 웹 브라우저 전체화면 편집 모드 진입 시 스크롤 튐 문제 수정 건에 대한 피드백 보고서 정리 완료.',
+    codeIds: ['c1', 'c8', 'c16'], // 마케팅 캠페인, 피드백, 대기
     attachments: [],
     created: '2026-06-25T14:25:00.000Z',
     updated: '2026-06-25T14:25:00.000Z'

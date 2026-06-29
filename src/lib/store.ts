@@ -104,43 +104,95 @@ const getStoragePathFromUrl = (url: string): string | null => {
 };
 
 const DEFAULT_CODES: Code[] = [
-  { id: 'c1', group: '프로젝트', name: 'fms' },
+  // 1) 프로젝트 (대분류)
+  { id: 'c1', group: '프로젝트', name: 'FMS' },
   { id: 'c2', group: '프로젝트', name: '가스링크' },
-  { id: 'c3', group: '프로젝트', name: 'spc' },
-  { id: 'c4', group: 'tag', name: '메모' },
-  { id: 'c5', group: 'tag', name: '프젝' },
-  { id: 'c6', group: 'tag', name: '기타' },
-  { id: 'c7', group: 'tag', name: '일정' },
-  { id: 'c8', group: 'tag', name: '등등등' }
+  { id: 'c3', group: '프로젝트', name: 'SPC(정압기압력자동조절장치)' },
+  { id: 'c4', group: '프로젝트', name: '홈페이지' },
+  { id: 'c5', group: '프로젝트', name: '토이' },
+
+  // 2) TAG (소분류)
+  { id: 'c6', group: 'TAG', name: '메모' },
+  { id: 'c7', group: 'TAG', name: '쿼리' },
+  { id: 'c8', group: 'TAG', name: '요청' },
+  { id: 'c9', group: 'TAG', name: '서버정보' },
+  { id: 'c10', group: 'TAG', name: '회의' },
+  { id: 'c11', group: 'TAG', name: '업무보고' },
+
+  // 3) 기능
+  { id: 'c12', group: '기능', name: '점검' },
+  { id: 'c13', group: '기능', name: '검침' },
+  { id: 'c14', group: '기능', name: '시설전' },
+  { id: 'c15', group: '기능', name: 'gateway' },
+
+  // 4) 진행
+  { id: 'c16', group: '진행', name: '미완료' },
+  { id: 'c17', group: '진행', name: '완료' }
 ];
 
 const DEFAULT_NOTES: Note[] = [
   {
     id: 'n1',
-    title: 'gg',
-    content: 'kkkkk',
-    codeIds: ['c1', 'c4', 'c7'], // fms, 메모, 일정
+    title: '시간관리 및 주간 주요 계획',
+    content: '1. FMS 모니터링 시스템 실시간 대시보드 점검\n2. 가스링크 프로젝트 배포 일정 확인\n3. SPC 압력 조절 알고리즘 보완 회의 참석 예정',
+    codeIds: ['c1', 'c10', 'c16'], // FMS, 회의, 미완료
     attachments: [],
-    created: new Date().toISOString(),
-    updated: new Date().toISOString()
+    created: '2026-06-29T07:11:00.000Z',
+    updated: '2026-06-29T07:11:00.000Z'
   },
   {
     id: 'n2',
-    title: 'hh',
-    content: 'qqqqq',
-    codeIds: ['c2', 'c6'], // 가스링크, 기타
+    title: '메모 필터 기능 수정',
+    content: '프로젝트와 태그 조합 필터링 시 동일 그룹 내에서는 OR 연산이 수행되고 다른 분류 간에는 AND 조건이 매핑되도록 note-list.tsx의 필터 알고리즘을 갱신하였습니다.',
+    codeIds: ['c5', 'c6', 'c17'], // 토이, 메모, 완료
     attachments: [],
-    created: new Date().toISOString(),
-    updated: new Date().toISOString()
+    created: '2026-06-29T06:27:00.000Z',
+    updated: '2026-06-29T06:27:00.000Z'
   },
   {
     id: 'n3',
-    title: 'ㅎㅎ',
-    content: 'ㅠㅠㅠㅠㅠㅠ',
-    codeIds: ['c4'], // 메모
+    title: '서버 로그 모니터링 배치 결과',
+    content: 'API 게이트웨이 요청 분산 처리 및 Supabase 스토리지 연결 에러 빈도 로깅 테스트를 완료했습니다. 현재 헬스 체크 결과 지연 시간 정상 범위 이내입니다.',
+    codeIds: ['c5', 'c6', 'c17'], // 토이, 메모, 완료
     attachments: [],
-    created: new Date().toISOString(),
-    updated: new Date().toISOString()
+    created: '2026-06-29T06:20:00.000Z',
+    updated: '2026-06-29T06:20:00.000Z'
+  },
+  {
+    id: 'n4',
+    title: '궁극적 업무 목표 정리',
+    content: '- 다목적 웹 메모장 필터패드(FilterPad)의 배포 자동화 파이프라인 구축\n- 모바일 반응형 뷰포트(Elastic Scroll 방지 포함) UI 검증 완료하기',
+    codeIds: ['c5', 'c6', 'c16'], // 토이, 메모, 미완료
+    attachments: [],
+    created: '2026-06-29T05:14:00.000Z',
+    updated: '2026-06-29T05:14:00.000Z'
+  },
+  {
+    id: 'n5',
+    title: 'gateway 라우터 작업',
+    content: '정압기 압력 자동조절장치(SPC) 통신 게이트웨이 연동 완료. 수집 신호 처리 지연 현상 개선하기 위한 스레드풀 분산 검증 진행 중.',
+    codeIds: ['c3', 'c15', 'c16'], // SPC, gateway, 미완료
+    attachments: [],
+    created: '2026-06-25T16:54:00.000Z',
+    updated: '2026-06-25T16:54:00.000Z'
+  },
+  {
+    id: 'n6',
+    title: '가스링크 정검물가 보일러 공급안전점검',
+    content: '가스공급 시설전 보일러 연동 안전 점검표 작성 및 서명 처리 진행. 시설 관련 점검 결과 특이사항 없음.',
+    codeIds: ['c2', 'c12', 'c17'], // 가스링크, 점검, 완료
+    attachments: [],
+    created: '2026-06-25T14:49:00.000Z',
+    updated: '2026-06-25T14:49:00.000Z'
+  },
+  {
+    id: 'n7',
+    title: 'FMS 조정기 필터교체 관련 기능 보완',
+    content: '조정기 필터 교체 주기 알림 기능 보완 요청 반영. 사용자 인터페이스 측면에서 키보드 스크롤 튐 문제 수정함.',
+    codeIds: ['c1', 'c8', 'c16'], // FMS, 요청, 미완료
+    attachments: [],
+    created: '2026-06-25T14:25:00.000Z',
+    updated: '2026-06-25T14:25:00.000Z'
   }
 ];
 
@@ -152,7 +204,9 @@ export const useStore = create<StoreState>((set, get) => ({
   codes: [],
   codeGroups: [
     { name: '프로젝트', isMultiSelect: false },
-    { name: 'tag', isMultiSelect: true }
+    { name: 'TAG', isMultiSelect: true },
+    { name: '기능', isMultiSelect: true },
+    { name: '진행', isMultiSelect: false }
   ],
   filter: {
     selectedProject: '전체',

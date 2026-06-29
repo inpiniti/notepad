@@ -255,13 +255,13 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 }}
                 className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
               >
-                취소
+                나가기
               </Button>
               <Button 
                 type="submit"
                 className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
               >
-                분류 생성
+                생성
               </Button>
             </div>
           </form>
@@ -329,7 +329,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                       }}
                       className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                     >
-                      취소
+                      나가기
                     </Button>
                     <Button 
                       type="submit"
@@ -482,9 +482,9 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                             setActiveAddGroup(null);
                             setNewItemName('');
                           }}
-                          className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                          className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-650 hover:bg-slate-100"
                         >
-                          취소
+                          나가기
                         </Button>
                         <Button 
                           type="submit"

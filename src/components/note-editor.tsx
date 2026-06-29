@@ -304,12 +304,12 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
   useEffect(() => {
     setNavigationInterceptor(async (targetId) => {
       if (!isDirty) return true;
-      const wantToSave = window.confirm('변경된 내용이 있습니다. 저장하시겠습니까?\n확인: 저장 후 이동\n취소: 저장하지 않고 이동');
+      const wantToSave = window.confirm('작성 중인 내용이 있습니다.\n\n[확인]을 누르면 저장하고 이동(저장)하며,\n[취소]를 누르면 저장하지 않고 이동(나가기)합니다.\n\n현재 화면을 유지하려면 브라우저 뒤로가기나 모달 외부를 누르거나 이 창을 닫아주세요.');
       if (wantToSave) {
         const success = await handleSave();
         return success; // 저장이 완료되어야 이동 허용
       }
-      return true; // 저장하지 않기로 했으면 그냥 이동
+      return true; // 저장하지 않기로 했으면 그냥 이동 (나가기)
     });
     return () => setNavigationInterceptor(null);
   }, [isDirty, handleSave, setNavigationInterceptor]);

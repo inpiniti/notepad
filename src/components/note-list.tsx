@@ -29,11 +29,26 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
       }
     }
 
-    // 2. 태그 필터 (다중 선택된 태그를 모두 포함해야 함 - AND 조건)
+    // 2. 태그 필터 (동일 분류 내에서는 OR, 다른 분류 간에는 AND 조건)
     if (filter.selectedTags.length > 0) {
+      // 1) 선택된 태그들을 그룹별로 묶음
+      const tagsByGroup: Record<string, string[]> = {};
       for (const tagName of filter.selectedTags) {
         const tagCode = codes.find(c => c.group !== '프로젝트' && c.name === tagName);
-        if (!tagCode || !note.codeIds.includes(tagCode.id)) {
+        if (tagCode) {
+          if (!tagsByGroup[tagCode.group]) {
+            tagsByGroup[tagCode.group] = [];
+          }
+          tagsByGroup[tagCode.group].push(tagCode.id);
+        }
+      }
+
+      // 2) 그룹별로 루프를 돌며 검사 (각 그룹 내에서는 하나라도 매칭되면 패스 - OR 조건)
+      //    단, 서로 다른 그룹 간에는 모두 만족해야 하므로 AND 조건이 됨
+      for (const groupName of Object.keys(tagsByGroup)) {
+        const allowedCodeIds = tagsByGroup[groupName];
+        const hasMatchingTagInGroup = note.codeIds.some(cid => allowedCodeIds.includes(cid));
+        if (!hasMatchingTagInGroup) {
           return false;
         }
       }

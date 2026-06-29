@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { FileText, AlertCircle, Loader2 } from 'lucide-react';
+import { useStore } from '@/lib/store';
+import { translations } from '@/lib/translations';
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -15,6 +17,9 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const currentLang = useStore((state) => state.currentLang);
+  const t = translations[currentLang] || translations.en;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +36,9 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         if (error) throw error;
         
         if (data.user && data.session === null) {
-          setSuccessMsg('회원가입 인증 메일이 발송되었습니다. 메일함을 확인해 주세요.');
+          setSuccessMsg(t.signupCheckEmail);
         } else {
-          setSuccessMsg('회원가입이 완료되었습니다. 로그인되었습니다!');
+          setSuccessMsg(t.signupSuccess);
           if (onSuccess) onSuccess();
         }
       } else {
@@ -46,7 +51,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || '인증에 실패했습니다. 다시 시도해 주세요.');
+      setErrorMsg(err.message || t.authFail);
     } finally {
       setIsLoading(false);
     }
@@ -59,16 +64,16 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           <FileText className="w-5.5 h-5.5 text-white" />
         </div>
         <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-          필터패드 로그인
+          {t.loginModalTitle}
         </h2>
         <p className="text-slate-500 text-xs mt-1 text-center">
-          {isSignUp ? '계정을 생성하고 나만의 스마트 필터 노트를 관리해 보세요' : '나만의 필터패드 메모장에 로그인하세요'}
+          {isSignUp ? t.signupModalDesc : t.loginModalDesc}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-slate-500 tracking-wide">이메일 주소</label>
+          <label className="text-[11px] font-bold text-slate-500 tracking-wide">{t.emailLabel}</label>
           <Input
             type="email"
             value={email}
@@ -81,7 +86,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-slate-500 tracking-wide">비밀번호</label>
+          <label className="text-[11px] font-bold text-slate-500 tracking-wide">{t.passwordLabel}</label>
           <Input
             type="password"
             value={password}
@@ -115,10 +120,10 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           {isLoading ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>처리 중...</span>
+              <span>{t.processing}</span>
             </>
           ) : (
-            <span>{isSignUp ? '가입하기' : '로그인'}</span>
+            <span>{isSignUp ? t.signupSubmit : t.loginSubmit}</span>
           )}
         </Button>
       </form>
@@ -134,7 +139,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           disabled={isLoading}
           className="text-xs text-indigo-650 hover:text-indigo-700 font-medium underline"
         >
-          {isSignUp ? '이미 계정이 있으신가요? 로그인' : '처음이신가요? 회원가입 계정 만들기'}
+          {isSignUp ? t.toLoginPrompt : t.toSignupPrompt}
         </button>
       </div>
     </div>

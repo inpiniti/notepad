@@ -35,6 +35,19 @@ export interface TranslationSet {
   toastDeleteSuccess: string;
   toastAddCodeSuccess: string;
   toastDeleteCodeSuccess: string;
+  loginModalTitle: string;
+  loginModalDesc: string;
+  signupModalDesc: string;
+  emailLabel: string;
+  passwordLabel: string;
+  loginSubmit: string;
+  signupSubmit: string;
+  toSignupPrompt: string;
+  toLoginPrompt: string;
+  processing: string;
+  signupCheckEmail: string;
+  signupSuccess: string;
+  authFail: string;
 }
 
 export const translations: Record<LangType, TranslationSet> = {
@@ -72,7 +85,20 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: 'Failed to save note.',
     toastDeleteSuccess: 'Note deleted.',
     toastAddCodeSuccess: 'Category added.',
-    toastDeleteCodeSuccess: 'Category deleted.'
+    toastDeleteCodeSuccess: 'Category deleted.',
+    loginModalTitle: 'Inpiniti Note Login',
+    loginModalDesc: 'Login to your Inpiniti Note',
+    signupModalDesc: 'Create an account and manage your smart notes',
+    emailLabel: 'Email Address',
+    passwordLabel: 'Password',
+    loginSubmit: 'Login',
+    signupSubmit: 'Sign Up',
+    toSignupPrompt: 'New here? Create an account',
+    toLoginPrompt: 'Already have an account? Login',
+    processing: 'Processing...',
+    signupCheckEmail: 'Verification email sent. Please check your inbox.',
+    signupSuccess: 'Sign up complete. You are now logged in!',
+    authFail: 'Authentication failed. Please try again.'
   },
   ko: {
     appTitle: '인피니티 노트 (Inpiniti Note)',
@@ -108,7 +134,20 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: '노트 저장 실패.',
     toastDeleteSuccess: '노트가 삭제되었습니다.',
     toastAddCodeSuccess: '분류가 추가되었습니다.',
-    toastDeleteCodeSuccess: '분류가 삭제되었습니다.'
+    toastDeleteCodeSuccess: '분류가 삭제되었습니다.',
+    loginModalTitle: '인피니티 노트 로그인',
+    loginModalDesc: '나만의 인피니티 노트(Inpiniti Note)에 로그인하세요',
+    signupModalDesc: '계정을 생성하고 나만의 스마트 필터 노트를 관리해 보세요',
+    emailLabel: '이메일 주소',
+    passwordLabel: '비밀번호',
+    loginSubmit: '로그인',
+    signupSubmit: '가입하기',
+    toSignupPrompt: '처음이신가요? 회원가입 계정 만들기',
+    toLoginPrompt: '이미 계정이 있으신가요? 로그인',
+    processing: '처리 중...',
+    signupCheckEmail: '회원가입 인증 메일이 발송되었습니다. 메일함을 확인해 주세요.',
+    signupSuccess: '회원가입이 완료되었습니다. 로그인되었습니다!',
+    authFail: '인증에 실패했습니다. 다시 시도해 주세요.'
   },
   ja: {
     appTitle: 'Inpiniti Note (インピニティノート)',
@@ -144,7 +183,20 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: 'ノートの保存に失敗しました。',
     toastDeleteSuccess: 'ノートを削除しました。',
     toastAddCodeSuccess: 'カテゴリを追加しました。',
-    toastDeleteCodeSuccess: 'カテゴリを削除しました。'
+    toastDeleteCodeSuccess: 'カテゴリを削除しました。',
+    loginModalTitle: 'Inpiniti Note ログイン',
+    loginModalDesc: 'あなたのInpiniti Noteにログインしてください',
+    signupModalDesc: 'アカウントを作成してスマートノートを管理しましょう',
+    emailLabel: 'メールアドレス',
+    passwordLabel: 'パスワード',
+    loginSubmit: 'ログイン',
+    signupSubmit: '登録する',
+    toSignupPrompt: '初めてですか？ アカウントを作成する',
+    toLoginPrompt: 'すでにアカウントをお持ちですか？ ログイン',
+    processing: '処理中...',
+    signupCheckEmail: '認証メールが送信されました。受信トレイを確認してください。',
+    signupSuccess: '登録が完了しました。ログインしました！',
+    authFail: '認証に失敗しました。もう一度お試しください。'
   },
   zh: {
     appTitle: 'Inpiniti Note (无限笔记)',
@@ -180,7 +232,20 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: '保存笔记失败。',
     toastDeleteSuccess: '笔记已删除。',
     toastAddCodeSuccess: '已添加分类。',
-    toastDeleteCodeSuccess: '已删除分类。'
+    toastDeleteCodeSuccess: '已删除分类。',
+    loginModalTitle: 'Inpiniti Note 登录',
+    loginModalDesc: '登录您的 Inpiniti Note',
+    signupModalDesc: '创建账号并管理您的智能笔记',
+    emailLabel: '电子邮箱',
+    passwordLabel: '密码',
+    loginSubmit: '登录',
+    signupSubmit: '注册',
+    toSignupPrompt: '第一次来？ 创建一个账号',
+    toLoginPrompt: '已有账号？ 登录',
+    processing: '处理中...',
+    signupCheckEmail: '验证邮件已发送，请检查您的收件箱。',
+    signupSuccess: '注册完成，已自动为您登录！',
+    authFail: '身份验证失败，请重试。'
   },
   es: {
     appTitle: 'Inpiniti Note',
@@ -216,7 +281,20 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: 'Error al guardar la nota.',
     toastDeleteSuccess: 'Nota eliminada.',
     toastAddCodeSuccess: 'Categoría agregada.',
-    toastDeleteCodeSuccess: 'Categoría eliminada.'
+    toastDeleteCodeSuccess: 'Categoría eliminada.',
+    loginModalTitle: 'Iniciar sesión en Inpiniti Note',
+    loginModalDesc: 'Inicie sesión en su Inpiniti Note',
+    signupModalDesc: 'Cree una cuenta y administre sus notas inteligentes',
+    emailLabel: 'Correo electrónico',
+    passwordLabel: 'Contraseña',
+    loginSubmit: 'Iniciar sesión',
+    signupSubmit: 'Registrarse',
+    toSignupPrompt: '¿Eres nuevo? Crea una cuenta',
+    toLoginPrompt: '¿Ya tienes una cuenta? Iniciar sesión',
+    processing: 'Procesando...',
+    signupCheckEmail: 'Correo de verificación enviado. Revise su bandeja de entrada.',
+    signupSuccess: '¡Registro completo! ¡Ha iniciado sesión!',
+    authFail: 'La autenticación falló. Por favor intente de nuevo.'
   },
   fr: {
     appTitle: 'OnlineNote',
@@ -252,7 +330,20 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: 'Échec de l\'enregistrement de la note.',
     toastDeleteSuccess: 'Note supprimée.',
     toastAddCodeSuccess: 'Catégorie ajoutée.',
-    toastDeleteCodeSuccess: 'Catégorie supprimée.'
+    toastDeleteCodeSuccess: 'Catégorie supprimée.',
+    loginModalTitle: 'Connexion à Inpiniti Note',
+    loginModalDesc: 'Connectez-vous à votre Inpiniti Note',
+    signupModalDesc: 'Créez un compte et gérez vos notes intelligentes',
+    emailLabel: 'Adresse e-mail',
+    passwordLabel: 'Mot de passe',
+    loginSubmit: 'Se connecter',
+    signupSubmit: 'S\'inscrire',
+    toSignupPrompt: 'Nouveau ici ? Créer un compte',
+    toLoginPrompt: 'Vous avez déjà un compte ? Se connecter',
+    processing: 'Traitement en cours...',
+    signupCheckEmail: 'E-mail de vérification envoyé. Veuillez vérifier votre boîte de réception.',
+    signupSuccess: 'Inscription terminée. Vous êtes maintenant connecté !',
+    authFail: 'Échec de l\'authentification. Veuillez réessayer.'
   },
   de: {
     appTitle: 'OnlineNote',
@@ -288,6 +379,19 @@ export const translations: Record<LangType, TranslationSet> = {
     toastSaveError: 'Speichern der Notiz fehlgeschlagen.',
     toastDeleteSuccess: 'Notiz gelöscht.',
     toastAddCodeSuccess: 'Kategorie hinzugefügt.',
-    toastDeleteCodeSuccess: 'Kategorie gelöscht.'
+    toastDeleteCodeSuccess: 'Kategorie gelöscht.',
+    loginModalTitle: 'Inpiniti Note Login',
+    loginModalDesc: 'Melden Sie sich bei Ihrem Inpiniti Note an',
+    signupModalDesc: 'Erstellen Sie ein Konto und verwalten Sie Ihre intelligenten Notizen',
+    emailLabel: 'E-Mail-Adresse',
+    passwordLabel: 'Passwort',
+    loginSubmit: 'Anmelden',
+    signupSubmit: 'Registrieren',
+    toSignupPrompt: 'Neu hier? Konto erstellen',
+    toLoginPrompt: 'Sie haben bereits ein Konto? Anmelden',
+    processing: 'Wird bearbeitet...',
+    signupCheckEmail: 'Bestätigungs-E-Mail gesendet. Bitte überprüfen Sie Ihren Posteingang.',
+    signupSuccess: 'Registrierung abgeschlossen. Sie sind jetzt angemeldet!',
+    authFail: 'Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
   }
 };

@@ -598,7 +598,9 @@ export const useStore = create<StoreState>((set, get) => ({
           await get().fetchNotes();
         } else {
           // 로그아웃 시 다시 샘플 데이터 로드하여 뷰 보호 및 체험 모드 제공
-          set({ codes: DEFAULT_CODES, notes: DEFAULT_NOTES });
+          const lang = get().currentLang;
+          const localizedCodes = getLocalizedCodes(lang);
+          set({ codes: localizedCodes, notes: getLocalizedNotes(lang, localizedCodes), isOffline: true });
         }
       });
 
@@ -1090,7 +1092,16 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (e) {
       console.error('Supabase signOut error', e);
     } finally {
-      set({ user: null, session: null, notes: [], codes: [] });
+      const lang = get().currentLang;
+      const localizedCodes = getLocalizedCodes(lang);
+      set({ 
+        user: null, 
+        session: null, 
+        codes: localizedCodes, 
+        notes: getLocalizedNotes(lang, localizedCodes),
+        isOffline: true,
+        activeNoteId: null 
+      });
     }
   },
 

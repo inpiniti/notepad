@@ -76,8 +76,8 @@ export default function App() {
             <BookOpen className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h1 className="text-xs font-bold text-slate-950 tracking-tight">Smart Notepad</h1>
-            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">상세코드 매핑 & 실시간 동기화 노트</p>
+            <h1 className="text-xs font-bold text-slate-950 tracking-tight">필터패드 (FilterPad)</h1>
+            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">강력한 분류 매핑 & 실시간 동기화 메모장</p>
           </div>
         </div>
 

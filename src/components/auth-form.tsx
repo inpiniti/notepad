@@ -59,10 +59,10 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           <FileText className="w-5.5 h-5.5 text-white" />
         </div>
         <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-          퀀트 투자 메모장 로그인
+          필터패드 로그인
         </h2>
         <p className="text-slate-500 text-xs mt-1 text-center">
-          {isSignUp ? '계정을 생성하고 나만의 투자 노트를 관리해 보세요' : '나만의 투자 분석 메모장에 로그인하세요'}
+          {isSignUp ? '계정을 생성하고 나만의 스마트 필터 노트를 관리해 보세요' : '나만의 필터패드 메모장에 로그인하세요'}
         </p>
       </div>
 

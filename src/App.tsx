@@ -7,11 +7,11 @@ import { AuthForm } from '@/components/auth-form';
 import { Dialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  SlidersHorizontal, 
-  FileText, 
-  Folder, 
-  Tag, 
+import {
+  SlidersHorizontal,
+  FileText,
+  Folder,
+  Tag,
   BookOpen,
   X,
   Loader2,
@@ -21,11 +21,11 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const { 
-    initialize, 
-    filter, 
-    activeNoteId, 
-    setActiveNoteId, 
+  const {
+    initialize,
+    filter,
+    activeNoteId,
+    setActiveNoteId,
     isOffline,
     setSelectedProject,
     toggleSelectedTag,
@@ -138,7 +138,7 @@ export default function App() {
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0 ml-auto md:ml-4 select-none">
-            <span className="hidden sm:inline text-[10px] font-bold text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">샘플 모드 (체험 중)</span>
+            <span className="hidden sm:inline text-[10px] font-bold text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">샘플 모드</span>
             <Button
               onClick={() => setIsLoginModalOpen(true)}
               className="h-6.5 text-[9.5px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg cursor-pointer px-3 shadow-sm shadow-indigo-600/10"
@@ -234,7 +234,7 @@ export default function App() {
       </main>
 
       {/* 3. 모바일용 모달/드로어 통합 */}
-      
+
       {/* 가. 모바일 필터 다이얼로그 (바텀시트 스타일) */}
       <Dialog
         isOpen={isMobileFilterOpen}
@@ -242,9 +242,9 @@ export default function App() {
         title="상세 필터 설정"
         className="p-0 sm:p-0 overflow-hidden"
       >
-        <FilterPanel 
-          isMobileDrawer={true} 
-          onCloseMobileDrawer={() => setIsMobileFilterOpen(false)} 
+        <FilterPanel
+          isMobileDrawer={true}
+          onCloseMobileDrawer={() => setIsMobileFilterOpen(false)}
         />
       </Dialog>
 
@@ -269,17 +269,16 @@ export default function App() {
       {/* 다. 전역 Toast 알림 */}
       {toastMessage && (
         <div
-          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border animate-fadeIn select-none transition-all ${
-            toastType === 'success'
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border animate-fadeIn select-none transition-all ${toastType === 'success'
               ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
               : toastType === 'error'
-              ? 'bg-red-50 border-red-200 text-red-800'
-              : 'bg-indigo-50 border-indigo-200 text-indigo-800'
-          }`}
+                ? 'bg-red-50 border-red-200 text-red-800'
+                : 'bg-indigo-50 border-indigo-200 text-indigo-800'
+            }`}
         >
           {toastType === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />}
-          {toastType === 'error'   && <XCircle      className="w-4 h-4 text-red-500 shrink-0" />}
-          {toastType === 'info'    && <Info         className="w-4 h-4 text-indigo-500 shrink-0" />}
+          {toastType === 'error' && <XCircle className="w-4 h-4 text-red-500 shrink-0" />}
+          {toastType === 'info' && <Info className="w-4 h-4 text-indigo-500 shrink-0" />}
           <span>{toastMessage}</span>
           <button
             onClick={hideToast}

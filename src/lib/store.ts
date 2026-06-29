@@ -222,7 +222,8 @@ export const useStore = create<StoreState>((set, get) => ({
           await get().fetchCodes();
           await get().fetchNotes();
         } else {
-          set({ notes: [], codes: [] });
+          // 로그아웃 시 다시 샘플 데이터 로드하여 뷰 보호 및 체험 모드 제공
+          set({ codes: DEFAULT_CODES, notes: DEFAULT_NOTES });
         }
       });
 
@@ -233,7 +234,12 @@ export const useStore = create<StoreState>((set, get) => ({
         await get().fetchCodes();
         await get().fetchNotes();
       } else {
-        set({ isLoading: false });
+        // 비로그인 상태일 때는 셈플(샘플) 데이터를 보여주어 둘러볼 수 있게 함
+        set({ 
+          codes: DEFAULT_CODES, 
+          notes: DEFAULT_NOTES, 
+          isLoading: false 
+        });
       }
     } catch (e) {
       console.warn('Supabase 서버 통신 실패. 로컬 스토리지 모드로 구동합니다.', e);

@@ -41,6 +41,9 @@ export default function App() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileEditorOpen, setIsMobileEditorOpen] = useState(false);
 
+  // 로그인 팝업 모달 상태
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   // 컴포넌트 마운트 시 데이터 초기화
   useEffect(() => {
     initialize();
@@ -64,10 +67,6 @@ export default function App() {
     );
   }
 
-  if (!user && !isOffline) {
-    return <AuthForm />;
-  }
-
   return (
     <div className="fixed inset-0 w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
@@ -83,7 +82,7 @@ export default function App() {
         </div>
 
         {/* 데스크탑용 선택된 필터 배지 리스트 (Supabase 연동 상태 배지 대체) */}
-        <div className="hidden md:flex items-center gap-1.5 shrink-0 max-w-[60%] select-none">
+        <div className="hidden md:flex items-center gap-1.5 shrink-0 max-w-[50%] select-none">
           {filter.selectedProject !== '전체' && (
             <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-indigo-50/30 text-indigo-700">
               <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-indigo-500/80" />
@@ -119,8 +118,8 @@ export default function App() {
           ))}
         </div>
 
-        {/* 로그아웃 및 계정 정보 */}
-        {!isOffline && user && (
+        {/* 로그아웃 및 계정 정보 / 로그인 버튼 (비로그인 상태 시) */}
+        {!isOffline && user ? (
           <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-4 select-none">
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-[9px] font-bold text-slate-450 leading-none">로그인 계정</span>
@@ -135,6 +134,16 @@ export default function App() {
               className="h-6.5 text-[9.5px] border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-bold rounded-lg cursor-pointer px-2"
             >
               로그아웃
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 shrink-0 ml-auto md:ml-4 select-none">
+            <span className="hidden sm:inline text-[10px] font-bold text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">샘플 모드 (체험 중)</span>
+            <Button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="h-6.5 text-[9.5px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg cursor-pointer px-3 shadow-sm shadow-indigo-600/10"
+            >
+              로그인
             </Button>
           </div>
         )}
@@ -247,6 +256,15 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* 라. 로그인 팝업 모달 */}
+      <Dialog
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        className="p-4 sm:p-5 overflow-hidden"
+      >
+        <AuthForm onSuccess={() => setIsLoginModalOpen(false)} />
+      </Dialog>
 
       {/* 다. 전역 Toast 알림 */}
       {toastMessage && (

@@ -135,7 +135,7 @@ export default function App() {
             <select
               value={currentLang}
               onChange={(e) => setLang(e.target.value as LangType)}
-              className="font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0 appearance-none"
+              className="no-zoom font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0 appearance-none"
               style={{
                 fontSize: '11px',
                 lineHeight: '1',

@@ -65,15 +65,17 @@ body {
   transform: scale(0.98);
 }
 
-/* 모바일 스크롤 개선 */
+/* 모바일 스크롤 개선 및 텍스트 뻥튀기 방지 */
 html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-/* iOS 사파리 textarea 돋보기(zoom) 이중 방지: font-size 16px 이상 강제 */
+/* iOS 사파리 textarea 돋보기(zoom) 이중 방지: font-size 16px 이상 강제 (no-zoom 클래스는 제외) */
 @media (max-width: 768px) {
-  input, textarea, select {
+  input:not(.no-zoom), textarea, select:not(.no-zoom) {
     font-size: max(16px, 1em) !important;
   }
 }

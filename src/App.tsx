@@ -43,6 +43,9 @@ export default function App() {
 
   const t = translations[currentLang] || translations.en;
 
+  const isAllProject = ['전체', 'All', 'すべて', '全部', 'Todo', 'Tout', 'Alle'].includes(filter.selectedProject);
+  const displayProjectName = isAllProject ? t.all : filter.selectedProject;
+
   // 모바일 오버레이 상태
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileEditorOpen, setIsMobileEditorOpen] = useState(false);
@@ -87,8 +90,9 @@ export default function App() {
           </div>
         </div>
 
+        {/* 데스크탑용 선택된 필터 배지 리스트 */}
         <div className="hidden lg:flex items-center gap-1.5 shrink-0 max-w-[40%] select-none">
-          {filter.selectedProject !== t.all && (
+          {!isAllProject && (
             <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-indigo-50/30 text-indigo-700">
               <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-indigo-500/80" />
               <span className="max-w-[100px] truncate">{filter.selectedProject}</span>
@@ -127,12 +131,25 @@ export default function App() {
         <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-4 select-none">
           {/* 다국어 언어 셀렉트 박스 */}
           <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 h-6.5 shrink-0 select-none">
-            <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Globe className="w-3 h-3 text-slate-400 shrink-0" />
             <select
               value={currentLang}
               onChange={(e) => setLang(e.target.value as LangType)}
-              className="text-[11px] md:text-[9.5px] font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0 py-0 pl-0.5 pr-4 appearance-none"
-              style={{ backgroundPosition: 'right center' }}
+              className="font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0 appearance-none"
+              style={{
+                fontSize: '11px',
+                lineHeight: '1',
+                paddingTop: '0px',
+                paddingBottom: '0px',
+                paddingLeft: '2px',
+                paddingRight: '14px',
+                margin: '0',
+                height: '100%',
+                backgroundPosition: 'right center',
+                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2523475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundSize: '12px',
+                backgroundRepeat: 'no-repeat'
+              }}
             >
               <option value="en">English</option>
               <option value="ko">한국어</option>
@@ -182,8 +199,8 @@ export default function App() {
           <div className="flex items-center gap-1.5 overflow-x-auto flex-1 min-w-0 scrollbar-none py-0.5">
             <Badge variant="project" className="text-[10px] rounded-md whitespace-nowrap shrink-0 flex items-center pr-1.5">
               <Folder className="w-2.5 h-2.5 mr-1 shrink-0" />
-              <span>{filter.selectedProject}</span>
-              {filter.selectedProject !== t.all && (
+              <span>{displayProjectName}</span>
+              {!isAllProject && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

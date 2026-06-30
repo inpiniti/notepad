@@ -87,20 +87,18 @@ export default function App() {
           </div>
         </div>
 
-        {/* 데스크탑용 선택된 필터 배지 리스트 */}
         <div className="hidden lg:flex items-center gap-1.5 shrink-0 max-w-[40%] select-none">
-          {filter.selectedProject !== (currentLang === 'ko' ? '전체' : (currentLang === 'ja' ? 'すべて' : (currentLang === 'zh' ? '全部' : 'All'))) && (
+          {filter.selectedProject !== t.all && (
             <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-indigo-50/30 text-indigo-700">
               <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-indigo-500/80" />
               <span className="max-w-[100px] truncate">{filter.selectedProject}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const allKeyword = currentLang === 'ko' ? '전체' : (currentLang === 'ja' ? 'すべて' : (currentLang === 'zh' ? '全部' : 'All'));
-                  setSelectedProject(allKeyword);
+                  setSelectedProject(t.all);
                 }}
                 className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors shrink-0"
-                title="Clear Project Filter"
+                title={t.clearProjectFilter}
               >
                 <X className="w-2 h-2" />
               </button>
@@ -117,7 +115,7 @@ export default function App() {
                   toggleSelectedTag(tag);
                 }}
                 className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors shrink-0"
-                title="Clear Tag Filter"
+                title={t.clearTagFilter}
               >
                 <X className="w-2 h-2" />
               </button>
@@ -128,12 +126,13 @@ export default function App() {
         {/* 우측 유틸리티 영역 (언어 선택기 + 인증) */}
         <div className="flex items-center gap-3 shrink-0 ml-auto md:ml-4 select-none">
           {/* 다국어 언어 셀렉트 박스 */}
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 h-6.5">
+          <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 h-6.5 shrink-0 select-none">
             <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <select
               value={currentLang}
               onChange={(e) => setLang(e.target.value as LangType)}
-              className="text-[9.5px] font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0"
+              className="text-[11px] md:text-[9.5px] font-bold text-slate-650 bg-transparent border-none outline-none cursor-pointer focus:ring-0 py-0 pl-0.5 pr-4 appearance-none"
+              style={{ backgroundPosition: 'right center' }}
             >
               <option value="en">English</option>
               <option value="ko">한국어</option>
@@ -184,14 +183,14 @@ export default function App() {
             <Badge variant="project" className="text-[10px] rounded-md whitespace-nowrap shrink-0 flex items-center pr-1.5">
               <Folder className="w-2.5 h-2.5 mr-1 shrink-0" />
               <span>{filter.selectedProject}</span>
-              {filter.selectedProject !== '전체' && (
+              {filter.selectedProject !== t.all && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedProject('전체');
+                    setSelectedProject(t.all);
                   }}
                   className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-450 hover:text-slate-700 transition-colors shrink-0"
-                  title="프로젝트 필터 해제"
+                  title={t.clearProjectFilter}
                 >
                   <X className="w-2 h-2" />
                 </button>
@@ -208,7 +207,7 @@ export default function App() {
                       toggleSelectedTag(tag);
                     }}
                     className="ml-1 p-0.5 rounded-full hover:bg-slate-200/80 text-slate-450 hover:text-slate-700 transition-colors shrink-0"
-                    title="태그 필터 해제"
+                    title={t.clearTagFilter}
                   >
                     <X className="w-2 h-2" />
                   </button>
@@ -216,7 +215,7 @@ export default function App() {
               ))
             ) : (
               <Badge variant="secondary" className="text-[10px] text-slate-400 border-dashed rounded-md whitespace-nowrap shrink-0">
-                태그 없음
+                {t.noTagsShort}
               </Badge>
             )}
           </div>
@@ -227,7 +226,7 @@ export default function App() {
             className="flex items-center gap-1.5 h-8 text-xs font-semibold rounded-lg text-slate-600 whitespace-nowrap shrink-0"
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-            <span>상세 필터</span>
+            <span>{t.detailFilter}</span>
           </Button>
         </div>
 

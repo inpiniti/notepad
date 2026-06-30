@@ -48,6 +48,10 @@ export interface TranslationSet {
   signupCheckEmail: string;
   signupSuccess: string;
   authFail: string;
+  all: string;
+  noTagsShort: string;
+  clearProjectFilter: string;
+  clearTagFilter: string;
 }
 
 export const translations: Record<LangType, TranslationSet> = {
@@ -98,7 +102,11 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: 'Processing...',
     signupCheckEmail: 'Verification email sent. Please check your inbox.',
     signupSuccess: 'Sign up complete. You are now logged in!',
-    authFail: 'Authentication failed. Please try again.'
+    authFail: 'Authentication failed. Please try again.',
+    all: 'All',
+    noTagsShort: 'No Tags',
+    clearProjectFilter: 'Clear Project Filter',
+    clearTagFilter: 'Clear Tag Filter'
   },
   ko: {
     appTitle: '인피니티 노트 (Inpiniti Note)',
@@ -147,7 +155,11 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: '처리 중...',
     signupCheckEmail: '회원가입 인증 메일이 발송되었습니다. 메일함을 확인해 주세요.',
     signupSuccess: '회원가입이 완료되었습니다. 로그인되었습니다!',
-    authFail: '인증에 실패했습니다. 다시 시도해 주세요.'
+    authFail: '인증에 실패했습니다. 다시 시도해 주세요.',
+    all: '전체',
+    noTagsShort: '태그 없음',
+    clearProjectFilter: '프로젝트 필터 해제',
+    clearTagFilter: '태그 필터 해제'
   },
   ja: {
     appTitle: 'Inpiniti Note (インピニティノート)',
@@ -196,7 +208,11 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: '処理中...',
     signupCheckEmail: '認証メールが送信されました。受信トレイを確認してください。',
     signupSuccess: '登録が完了しました。ログインしました！',
-    authFail: '認証に失敗しました。もう一度お試しください。'
+    authFail: '認証に失敗しました。もう一度お試しください。',
+    all: 'すべて',
+    noTagsShort: 'タグなし',
+    clearProjectFilter: 'プロジェクトフィルター解除',
+    clearTagFilter: 'タグフィルター解除'
   },
   zh: {
     appTitle: 'Inpiniti Note (无限笔记)',
@@ -245,7 +261,11 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: '处理中...',
     signupCheckEmail: '验证邮件已发送，请检查您的收件箱。',
     signupSuccess: '注册完成，已自动为您登录！',
-    authFail: '身份验证失败，请重试。'
+    authFail: '身份验证失败，请重试。',
+    all: '全部',
+    noTagsShort: '无标签',
+    clearProjectFilter: '清除项目筛选',
+    clearTagFilter: '清除标签筛选'
   },
   es: {
     appTitle: 'Inpiniti Note',
@@ -294,7 +314,11 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: 'Procesando...',
     signupCheckEmail: 'Correo de verificación enviado. Revise su bandeja de entrada.',
     signupSuccess: '¡Registro completo! ¡Ha iniciado sesión!',
-    authFail: 'La autenticación falló. Por favor intente de nuevo.'
+    authFail: 'La autenticación falló. Por favor intente de nuevo.',
+    all: 'Todo',
+    noTagsShort: 'Sin etiquetas',
+    clearProjectFilter: 'Limpiar filtro de proyecto',
+    clearTagFilter: 'Limpiar filtro de etiquetas'
   },
   fr: {
     appTitle: 'OnlineNote',
@@ -343,7 +367,11 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: 'Traitement en cours...',
     signupCheckEmail: 'E-mail de vérification envoyé. Veuillez vérifier votre boîte de réception.',
     signupSuccess: 'Inscription terminée. Vous êtes maintenant connecté !',
-    authFail: 'Échec de l\'authentification. Veuillez réessayer.'
+    authFail: 'Échec de l\'authentification. Veuillez réessayer.',
+    all: 'Tout',
+    noTagsShort: 'Aucun tag',
+    clearProjectFilter: 'Effacer le filtre de projet',
+    clearTagFilter: 'Effacer le filtre de tags'
   },
   de: {
     appTitle: 'OnlineNote',
@@ -392,6 +420,10 @@ export const translations: Record<LangType, TranslationSet> = {
     processing: 'Wird bearbeitet...',
     signupCheckEmail: 'Bestätigungs-E-Mail gesendet. Bitte überprüfen Sie Ihren Posteingang.',
     signupSuccess: 'Registrierung abgeschlossen. Sie sind jetzt angemeldet!',
-    authFail: 'Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
+    authFail: 'Authentifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+    all: 'Alle',
+    noTagsShort: 'Keine Tags',
+    clearProjectFilter: 'Projektfilter löschen',
+    clearTagFilter: 'Tag-Filter löschen'
   }
 };

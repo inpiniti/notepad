@@ -80,13 +80,13 @@ export default function App() {
     <div className="fixed inset-0 w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white shadow-xs">
-            <BookOpen className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white shadow-xs shrink-0">
+            <BookOpen className="w-3.5 h-3.5 shrink-0" />
           </div>
-          <div>
-            <h1 className="text-xs font-bold text-slate-950 tracking-tight">{t.appTitle}</h1>
-            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">{t.appSubtitle}</p>
+          <div className="min-w-0">
+            <h1 className="text-xs font-bold text-slate-950 tracking-tight truncate">{t.appTitle}</h1>
+            <p className="hidden sm:block text-[9px] text-slate-400 font-medium leading-none mt-0.5">{t.appSubtitle}</p>
           </div>
         </div>
 

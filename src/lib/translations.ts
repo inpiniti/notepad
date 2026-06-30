@@ -321,7 +321,7 @@ export const translations: Record<LangType, TranslationSet> = {
     clearTagFilter: 'Limpiar filtro de etiquetas'
   },
   fr: {
-    appTitle: 'OnlineNote',
+    appTitle: 'Inpiniti Note',
     appSubtitle: 'Catégorisation dynamique et bloc-notes synchronisé en temps réel',
     projectLabel: 'Projet',
     tagLabel: 'TAG',
@@ -374,7 +374,7 @@ export const translations: Record<LangType, TranslationSet> = {
     clearTagFilter: 'Effacer le filtre de tags'
   },
   de: {
-    appTitle: 'OnlineNote',
+    appTitle: 'Inpiniti Note',
     appSubtitle: 'Dynamische Kategorisierung & Echtzeit-Notizblock',
     projectLabel: 'Projekt',
     tagLabel: 'TAG',

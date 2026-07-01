@@ -24,11 +24,14 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 모든 언어에서의 '전체' 키워드 목록 추출 (예: 'All', '전체', 'すべて', '全部' 등)
+  const allProjectKeywords = Object.values(translations).map(trans => trans.all);
+
   // 필터 매칭 로직
   const filteredNotes = notes.filter(note => {
     // 1. 프로젝트 필터
-    if (filter.selectedProject !== '전체') {
-      const projectCode = codes.find(c => c.group === '프로젝트' && c.name === filter.selectedProject);
+    if (!allProjectKeywords.includes(filter.selectedProject)) {
+      const projectCode = codes.find(c => projectGroupKeys.includes(c.group) && c.name === filter.selectedProject);
       if (!projectCode || !note.codeIds.includes(projectCode.id)) {
         return false;
       }

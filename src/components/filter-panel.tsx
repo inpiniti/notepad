@@ -151,13 +151,13 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
       {!isMobileDrawer && (
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 shrink-0 bg-slate-50/30">
           <div className="flex items-center gap-2 font-semibold text-slate-900">
-            <Filter className="w-4 h-4 text-indigo-500" />
+            <Filter className="w-4 h-4 text-rose-500" />
             <span className="text-xs">{t.detailFilter}</span>
           </div>
           {(filter.selectedProject !== allKeyword || filter.selectedTags.length > 0) && (
             <button 
               onClick={clearFilters}
-              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
+              className="text-xs text-rose-600 hover:text-rose-800 font-medium hover:underline"
             >
               {currentLang === 'ko' ? '초기화' : 'Reset'}
             </button>
@@ -175,7 +175,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
               }}
               variant="outline"
               size="sm"
-              className="flex-1 text-[10px] font-bold text-slate-600 border-dashed border-slate-200 hover:border-indigo-400 hover:text-indigo-600 rounded-lg h-7.5 flex items-center justify-center gap-1 shrink-0"
+              className="flex-1 text-[10px] font-bold text-slate-600 border-dashed border-slate-200 hover:border-rose-400 hover:text-rose-600 rounded-lg h-7.5 flex items-center justify-center gap-1 shrink-0"
             >
               <FolderPlus className="w-3 h-3" />
               <span>{t.addCategory}</span>
@@ -208,7 +208,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder={currentLang === 'ko' ? "분류명 (예: 중요도)" : "Category Name (e.g. Priority)"}
-                className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-slate-50/50 border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
+                className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-slate-50/50 border-slate-200 focus-visible:ring-1 focus-visible:ring-rose-500/50 focus-visible:border-rose-500/50"
                 required
                 autoFocus
                 onKeyDown={(e) => {
@@ -222,7 +222,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 value={newCodeName}
                 onChange={(e) => setNewCodeName(e.target.value)}
                 placeholder={currentLang === 'ko' ? "첫 항목명 (예: 상)" : "First Item Name (e.g. High)"}
-                className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-slate-50/50 border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
+                className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-slate-50/50 border-slate-200 focus-visible:ring-1 focus-visible:ring-rose-500/50 focus-visible:border-rose-500/50"
                 required
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
@@ -236,7 +236,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                 onClick={() => setNewCategoryMulti(prev => !prev)}
                 className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-semibold border transition-colors ${
                   newCategoryMulti
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                    ? 'bg-rose-50 border-rose-200 text-rose-700'
                     : 'bg-amber-50 border-amber-200 text-amber-700'
                 }`}
               >
@@ -259,13 +259,13 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                   setErrorMsg(null);
                   setShowAddCategory(false);
                 }}
-                className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-650 hover:bg-slate-100"
               >
                 {t.exit}
               </Button>
               <Button 
                 type="submit"
-                className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
+                className="h-6 px-2 text-[9.5px] rounded-md bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs"
               >
                 {t.create}
               </Button>
@@ -313,7 +313,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                     value={newProjectName}
                     onChange={(e) => setNewProjectName(e.target.value)}
                     placeholder={currentLang === 'ko' ? "새 프로젝트 명" : "New Project Name"}
-                    className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
+                    className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-rose-500/50 focus-visible:border-rose-500/50"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') {
@@ -330,13 +330,13 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         setShowAddProject(false);
                         setNewProjectName('');
                       }}
-                      className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                      className="h-6 px-2 text-[9.5px] rounded-md text-slate-400 hover:text-slate-650 hover:bg-slate-100"
                     >
                       {t.exit}
                     </Button>
                     <Button 
                       type="submit"
-                      className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
+                      className="h-6 px-2 text-[9.5px] rounded-md bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs"
                     >
                       {currentLang === 'ko' ? '추가' : 'Add'}
                     </Button>
@@ -352,11 +352,11 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                   }}
                   className={`w-full flex items-center gap-2 pl-8 pr-4 py-2 text-xs transition-all text-left border-l-2 select-none ${
                     filter.selectedProject === allKeyword
-                      ? 'bg-indigo-50/40 border-l-indigo-600 text-indigo-900 font-semibold'
+                      ? 'bg-rose-50/40 border-l-rose-600 text-rose-900 font-semibold'
                       : 'bg-transparent border-l-transparent text-slate-600 hover:bg-slate-100/40 hover:text-slate-900'
                   }`}
                 >
-                  <Folder className={`w-3.5 h-3.5 shrink-0 ${filter.selectedProject === allKeyword ? 'text-indigo-500' : 'text-slate-400'}`} />
+                  <Folder className={`w-3.5 h-3.5 shrink-0 ${filter.selectedProject === allKeyword ? 'text-rose-500' : 'text-slate-400'}`} />
                   <span>{currentLang === 'ko' ? '전체 프로젝트' : `${t.projectLabel} (${t.allProjects})`}</span>
                 </button>
 
@@ -371,11 +371,11 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         }}
                         className={`flex-1 flex items-center gap-2 pl-8 pr-10 py-2 text-xs transition-all text-left border-l-2 select-none ${
                           isSelected
-                            ? 'bg-indigo-50/40 border-l-indigo-600 text-indigo-900 font-semibold'
-                            : 'bg-transparent border-l-transparent text-slate-650 hover:text-slate-950'
+                            ? 'bg-rose-50/40 border-l-rose-600 text-rose-900 font-semibold'
+                            : 'bg-transparent border-l-transparent text-slate-655 hover:text-slate-950'
                         }`}
                       >
-                        <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-indigo-500' : 'text-slate-400'}`} />
+                        <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-rose-500' : 'text-slate-400'}`} />
                         <span className="truncate">{project.name}</span>
                       </button>
                       <button
@@ -433,7 +433,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         title={isMulti ? (currentLang === 'ko' ? '현재: 다중 선택 (클릭 시 단일 선택으로 변경)' : 'Current: Multi-select (Click to change to single-select)') : (currentLang === 'ko' ? '현재: 단일 선택 (클릭 시 다중 선택으로 변경)' : 'Current: Single-select (Click to change to multi-select)')}
                         className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-semibold border transition-colors ${
                           isMulti
-                            ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100'
+                            ? 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100'
                             : 'bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100'
                         }`}
                       >
@@ -471,7 +471,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
                         placeholder={currentLang === 'ko' ? `새 ${groupName} 명` : `New ${groupName} Item`}
-                        className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50"
+                        className="h-7.5 text-[10px] py-0.5 px-2 rounded-lg bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-rose-500/50 focus-visible:border-rose-500/50"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Escape') {
@@ -494,7 +494,7 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                         </Button>
                         <Button 
                           type="submit"
-                          className="h-6 px-2 text-[9.5px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs"
+                          className="h-6 px-2 text-[9.5px] rounded-md bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs"
                         >
                           {currentLang === 'ko' ? '추가' : 'Add'}
                         </Button>
@@ -511,11 +511,11 @@ export function FilterPanel({ isMobileDrawer = false, onCloseMobileDrawer }: Fil
                             onClick={() => toggleSelectedTag(code.name)}
                             className={`flex-1 flex items-center gap-2 pl-8 pr-10 py-2 text-xs transition-all text-left border-l-2 select-none ${
                               isSelected
-                                ? 'bg-indigo-50/40 border-l-indigo-600 text-indigo-900 font-semibold'
+                                ? 'bg-rose-50/40 border-l-rose-600 text-rose-900 font-semibold'
                                 : 'bg-transparent border-l-transparent text-slate-650 hover:text-slate-950'
                             }`}
                           >
-                            <Tag className={`w-3 h-3 shrink-0 ${isSelected ? 'text-indigo-500 font-semibold' : 'text-slate-400'}`} />
+                            <Tag className={`w-3 h-3 shrink-0 ${isSelected ? 'text-rose-500 font-semibold' : 'text-slate-400'}`} />
                             <span className="truncate">{code.name}</span>
                           </button>
                           <button

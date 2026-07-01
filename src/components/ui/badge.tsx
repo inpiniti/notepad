@@ -16,7 +16,7 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
         variant === "destructive" && "border-transparent bg-red-100 text-red-700 border-red-200",
         variant === "outline" && "text-slate-950 border-slate-200 bg-white",
         // 프로젝트 및 태그 전용 스타일 (Harmonious 프리미엄 컬러 세트)
-        variant === "project" && "border-transparent bg-indigo-50 text-indigo-700 hover:bg-indigo-100/80 font-medium border border-indigo-100",
+        variant === "project" && "border-transparent bg-rose-50 text-rose-700 hover:bg-rose-100/80 font-medium border border-rose-100",
         variant === "tag" && "border-transparent bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80 font-medium border border-emerald-100",
         className
       )}

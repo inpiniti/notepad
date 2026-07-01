@@ -79,7 +79,7 @@ export default function App() {
   if (!authInitialized) {
     return (
       <div className="h-[100dvh] flex items-center justify-center bg-slate-900">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
       </div>
     );
   }
@@ -101,8 +101,8 @@ export default function App() {
         {/* 데스크탑용 선택된 필터 배지 리스트 */}
         <div className="hidden lg:flex items-center gap-1.5 shrink-0 max-w-[40%] select-none">
           {!isAllProject && (
-            <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-indigo-50/30 text-indigo-700">
-              <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-indigo-500/80" />
+            <Badge variant="project" className="text-[9px] py-0.5 pl-2 pr-1 rounded-md whitespace-nowrap shrink-0 flex items-center h-5.5 border border-slate-200 bg-rose-50/30 text-rose-700">
+              <Folder className="w-2.5 h-2.5 mr-1 shrink-0 text-rose-500/80" />
               <span className="max-w-[100px] truncate">{filter.selectedProject}</span>
               <button
                 onClick={(e) => {
@@ -188,10 +188,10 @@ export default function App() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="hidden sm:inline text-[10px] font-bold text-indigo-650 bg-indigo-50 px-2 py-0.5 rounded-md">{t.sampleMode}</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-rose-650 bg-rose-50 px-2 py-0.5 rounded-md">{t.sampleMode}</span>
               <Button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="h-6.5 text-[9.5px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg cursor-pointer px-3 shadow-sm shadow-indigo-600/10"
+                className="h-6.5 text-[9.5px] bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg cursor-pointer px-3 shadow-sm shadow-rose-600/10"
               >
                 {t.loginBtn}
               </Button>
@@ -250,7 +250,7 @@ export default function App() {
             onClick={() => setIsMobileFilterOpen(true)}
             className="flex items-center gap-1.5 h-8 text-xs font-semibold rounded-lg text-slate-600 whitespace-nowrap shrink-0"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-rose-500 shrink-0" />
             <span>{t.detailFilter}</span>
           </Button>
         </div>

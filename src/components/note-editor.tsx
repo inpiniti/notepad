@@ -96,22 +96,22 @@ function NewFilePreviewItem({ file, onRemove, lang }: { file: File, onRemove: ()
   const isImage = file.type.startsWith('image/');
 
   return (
-    <div className="flex items-center justify-between p-1.5 bg-indigo-50/20 border border-indigo-100/50 rounded-lg text-[11px] animate-fadeIn">
-      <div className="flex items-center gap-2 text-indigo-900 font-medium truncate max-w-[85%]">
+    <div className="flex items-center justify-between p-1.5 bg-rose-50/20 border border-rose-100/50 rounded-lg text-[11px] animate-fadeIn">
+      <div className="flex items-center gap-2 text-rose-900 font-medium truncate max-w-[85%]">
         {isImage && previewUrl ? (
           <img 
             src={previewUrl} 
             alt={file.name} 
-            className="w-8.5 h-8.5 object-cover rounded-md border border-indigo-100/80 shrink-0" 
+            className="w-8.5 h-8.5 object-cover rounded-md border border-rose-100/80 shrink-0" 
           />
         ) : (
-          <div className="w-8.5 h-8.5 bg-indigo-50 border border-indigo-100 flex items-center justify-center rounded-md shrink-0">
-            <Paperclip className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="w-8.5 h-8.5 bg-rose-50 border border-rose-100 flex items-center justify-center rounded-md shrink-0">
+            <Paperclip className="w-3.5 h-3.5 text-rose-400" />
           </div>
         )}
         <div className="flex flex-col min-w-0">
           <span className="truncate text-slate-800 font-semibold">{file.name}</span>
-          <span className="text-[9px] text-indigo-500 font-normal leading-none mt-0.5">
+          <span className="text-[9px] text-rose-500 font-normal leading-none mt-0.5">
             {lang === 'ko' ? '업로드 대기 중' : 'Waiting for upload'}
           </span>
         </div>
@@ -119,7 +119,7 @@ function NewFilePreviewItem({ file, onRemove, lang }: { file: File, onRemove: ()
       <button
         type="button"
         onClick={onRemove}
-        className="p-1 rounded-full hover:bg-indigo-100 text-indigo-600 transition-colors mr-0.5"
+        className="p-1 rounded-full hover:bg-rose-100 text-rose-600 transition-colors mr-0.5"
       >
         <X className="w-3 h-3" />
       </button>
@@ -445,7 +445,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           
           <Button 
             onClick={handleSave} 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-xs text-[10px] font-semibold flex items-center gap-1 h-7 px-2.5"
+            className="bg-rose-600 hover:bg-rose-700 text-white rounded-md shadow-xs text-[10px] font-semibold flex items-center gap-1 h-7 px-2.5"
           >
             <Save className="w-3 h-3" />
             <span>{t.save}</span>
@@ -478,7 +478,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
         {/* 프로젝트 배정 */}
         <div className="space-y-1">
           <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <FolderPlus className="w-3 h-3 text-indigo-400" />
+            <FolderPlus className="w-3 h-3 text-rose-400" />
             <span>{currentLang === 'ko' ? '연관 프로젝트 지정' : 'Assign Project'}</span>
           </label>
           <div className="flex flex-wrap gap-1.5">
@@ -500,7 +500,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
                 onClick={() => setSelectedProjectId(p.id)}
                 className={`px-2.5 py-1 text-[10px] rounded-lg border transition-all ${
                   selectedProjectId === p.id
-                    ? 'bg-indigo-600 border-transparent text-white font-medium shadow-xs'
+                    ? 'bg-rose-600 border-transparent text-white font-medium shadow-xs'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
@@ -516,7 +516,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           return (
             <div key={groupName} className="space-y-1">
               <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <Tag className="w-3 h-3 text-indigo-400" />
+                <Tag className="w-3 h-3 text-rose-400" />
                 <span>{currentLang === 'ko' ? `연관 ${groupName} 지정` : `Assign ${groupName}`}</span>
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -529,12 +529,12 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
                       onClick={() => handleTagToggle(c.id)}
                       className={`px-2 py-1 text-[10px] rounded-lg border transition-all flex items-center gap-1 ${
                         isSelected
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200 font-medium'
+                          ? 'bg-rose-50 text-rose-700 border-rose-200 font-medium'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full border transition-all shrink-0 ${
-                        isSelected ? 'bg-indigo-500 border-transparent' : 'bg-transparent border-slate-355'
+                        isSelected ? 'bg-rose-500 border-transparent' : 'bg-transparent border-slate-355'
                       }`} />
                       <span>{c.name}</span>
                     </button>
@@ -560,14 +560,14 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t.noteContentPlaceholder}
-            className="min-h-[160px] leading-relaxed border-slate-100 hover:border-slate-200 focus-visible:ring-1 focus-visible:ring-indigo-600 focus-visible:border-indigo-600 text-xs resize-none overflow-hidden"
+            className="min-h-[160px] leading-relaxed border-slate-100 hover:border-slate-200 focus-visible:ring-1 focus-visible:ring-rose-600 focus-visible:border-rose-600 text-xs resize-none overflow-hidden"
           />
         </div>
 
         {/* 첨부파일 영역 */}
         <div className="space-y-1.5">
           <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Paperclip className="w-3 h-3 text-indigo-400" />
+            <Paperclip className="w-3 h-3 text-rose-400" />
             <span>{currentLang === 'ko' ? '첨부파일' : 'Attachments'}</span>
           </label>
 
@@ -577,7 +577,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
             onDrop={handleDrop}
             onPaste={handlePaste}
             onClick={() => fileInputRef.current?.click()}
-            className="border border-dashed border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/10 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-1 group"
+            className="border border-dashed border-slate-200 hover:border-rose-400 hover:bg-rose-50/10 rounded-xl p-4 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-1 group"
           >
             <input
               type="file"
@@ -586,7 +586,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
               onChange={handleFileChange}
               className="hidden"
             />
-            <FileUp className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+            <FileUp className="w-5 h-5 text-slate-400 group-hover:text-rose-500 transition-colors" />
             <div className="text-[10px] font-semibold text-slate-600">
               {currentLang === 'ko' ? '파일을 마우스로 끌어다 놓거나 클릭하여 선택, 또는 이미지를 클립보드에서 붙여넣기하세요' : 'Drag and drop files here, click to select, or paste images from the clipboard'}
             </div>
@@ -639,7 +639,7 @@ export function NoteEditor({ onCloseMobile }: NoteEditorProps) {
           <div className="flex flex-col gap-2 pt-2">
             <button
               onClick={handleConfirmSave}
-              className="w-full h-9.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center cursor-pointer transition-colors"
+              className="w-full h-9.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center cursor-pointer transition-colors"
             >
               {currentLang === 'ko' ? '저장하고 이동' : 'Save and Leave'}
             </button>

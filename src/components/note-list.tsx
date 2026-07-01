@@ -100,7 +100,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.searchPlaceholder}
-            className="h-8 pl-8 pr-7 text-xs bg-slate-50 border-slate-100 hover:bg-slate-100/50 transition-colors rounded-lg focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50 shadow-none"
+            className="h-8 pl-8 pr-7 text-xs bg-slate-50 border-slate-100 hover:bg-slate-100/50 transition-colors rounded-lg focus-visible:ring-1 focus-visible:ring-rose-500/50 focus-visible:border-rose-500/50 shadow-none"
           />
           {searchQuery && (
             <button
@@ -114,7 +114,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
         </div>
         <button
           onClick={handleAddNewNote}
-          className="h-8 w-8 bg-indigo-600 hover:bg-indigo-700 active:scale-95 hover:scale-102 text-white rounded-lg transition-all shadow-xs flex items-center justify-center shrink-0"
+          className="h-8 w-8 bg-rose-600 hover:bg-rose-700 active:scale-95 hover:scale-102 text-white rounded-lg transition-all shadow-xs flex items-center justify-center shrink-0"
           title={t.newNoteTitle}
         >
           <Plus className="w-4 h-4" />
@@ -145,7 +145,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
               onClick={() => handleNoteSelect(note.id)}
               className={`py-2.5 px-3 border-l-2 border-t border-b transition-all cursor-pointer group flex items-center justify-between gap-3 ${
                 isSelected
-                  ? 'border-l-indigo-600 border-t-indigo-100 border-b-indigo-100 bg-indigo-50/40 text-slate-900 font-semibold'
+                  ? 'border-l-rose-600 border-t-rose-100 border-b-rose-100 bg-rose-50/40 text-slate-900 font-semibold'
                   : `border-l-transparent border-b-slate-100 hover:bg-slate-50 text-slate-600 ${
                       index === 0 ? 'border-t-slate-100' : 'border-t-transparent'
                     }`
@@ -155,7 +155,7 @@ export function NoteList({ onOpenEditorMobile }: NoteListProps) {
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <h4 className={`text-xs truncate transition-colors ${
-                    isSelected ? 'text-indigo-900 font-bold' : 'text-slate-700 font-medium'
+                    isSelected ? 'text-rose-900 font-bold' : 'text-slate-700 font-medium'
                   }`}>
                     {note.title.trim() === '' ? (currentLang === 'ko' ? '제목 없음' : 'Untitled') : note.title}
                   </h4>

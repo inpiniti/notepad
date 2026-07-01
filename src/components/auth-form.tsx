@@ -60,7 +60,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
   return (
     <div className="w-full relative overflow-hidden select-none bg-white p-2">
       <div className="flex flex-col items-center mb-6">
-        <div className="w-11 h-11 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 mb-3 animate-fadeIn">
+        <div className="w-11 h-11 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-600/20 mb-3 animate-fadeIn">
           <FileText className="w-5.5 h-5.5 text-white" />
         </div>
         <h2 className="text-lg font-bold text-slate-900 tracking-tight">
@@ -81,7 +81,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             placeholder="example@email.com"
             required
             disabled={isLoading}
-            className="h-9.5 text-xs rounded-lg bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus-visible:ring-1 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+            className="h-9.5 text-xs rounded-lg bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:border-rose-500"
           />
         </div>
 
@@ -94,7 +94,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             placeholder="••••••••"
             required
             disabled={isLoading}
-            className="h-9.5 text-xs rounded-lg bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus-visible:ring-1 focus-visible:ring-indigo-500 focus-visible:border-indigo-500"
+            className="h-9.5 text-xs rounded-lg bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:border-rose-500"
           />
         </div>
 
@@ -115,7 +115,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-9.5 bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white text-xs font-semibold rounded-lg shadow-md shadow-indigo-600/10 flex items-center justify-center gap-2 mt-5 cursor-pointer"
+          className="w-full h-9.5 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white text-xs font-semibold rounded-lg shadow-md shadow-rose-600/10 flex items-center justify-center gap-2 mt-5 cursor-pointer"
         >
           {isLoading ? (
             <>
@@ -137,7 +137,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             setSuccessMsg(null);
           }}
           disabled={isLoading}
-          className="text-xs text-indigo-650 hover:text-indigo-700 font-medium underline"
+          className="text-xs text-rose-650 hover:text-rose-700 font-medium underline"
         >
           {isSignUp ? t.toLoginPrompt : t.toSignupPrompt}
         </button>

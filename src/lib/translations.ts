@@ -181,7 +181,7 @@ export const translations: Record<LangType, TranslationSet> = {
     multiSelect: '複数',
     singleSelect: '単一',
     searchPlaceholder: 'ノートのタイトル、本文を検索...',
-    totalNotes: (count) => `全 ${count} 件의 노트`,
+    totalNotes: (count) => `全 ${count} 件のノート`,
     newNoteTitle: '新規ノート作成',
     noteTitlePlaceholder: 'タイトルを入力してください',
     noteContentPlaceholder: 'ここにアイデアや仕事の内容を記録してください...',

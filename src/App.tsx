@@ -12,7 +12,6 @@ import {
   FileText,
   Folder,
   Tag,
-  BookOpen,
   X,
   Loader2,
   CheckCircle2,
@@ -21,6 +20,15 @@ import {
   Globe
 } from 'lucide-react';
 import { translations, LangType } from '@/lib/translations';
+
+function StrawberryIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M12 1.5C11.5 1.5 9.5 2.8 8.5 4.2C10.5 4.2 12 3.2 12 3.2C12 3.2 13.5 4.2 15.5 4.2C14.5 2.8 12.5 1.5 12 1.5Z" />
+      <path d="M12 22.5C7.2 22.5 4 15.5 4 10.5C4 7 7.5 5.5 12 5.5C16.5 5.5 20 7 20 10.5C20 15.5 16.8 22.5 12 22.5Z" />
+    </svg>
+  );
+}
 
 export default function App() {
   const {
@@ -81,8 +89,8 @@ export default function App() {
       {/* 1. 상단 글로벌 헤더 */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center text-white shadow-xs shrink-0">
-            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+          <div className="w-7 h-7 rounded-md bg-rose-500 flex items-center justify-center text-white shadow-xs shrink-0">
+            <StrawberryIcon className="w-3.5 h-3.5 shrink-0" />
           </div>
           <div className="min-w-0">
             <h1 className="text-xs font-bold text-slate-950 tracking-tight truncate">{t.appTitle}</h1>

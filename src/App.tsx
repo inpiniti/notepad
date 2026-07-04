@@ -90,7 +90,7 @@ export default function App() {
   return (
     <div className="fixed inset-0 w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
+      <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 min-w-0 relative">
           <div 
             onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}

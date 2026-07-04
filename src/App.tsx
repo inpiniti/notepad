@@ -61,6 +61,9 @@ export default function App() {
   // 로그인 팝업 모달 상태
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
+  // 버전 전환 드롭다운 상태
+  const [isVersionDropdownOpen, setIsVersionDropdownOpen] = useState(false);
+
   // 컴포넌트 마운트 시 데이터 초기화
   useEffect(() => {
     initialize();
@@ -88,14 +91,44 @@ export default function App() {
     <div className="fixed inset-0 w-full bg-white flex flex-col antialiased overflow-hidden text-slate-800">
       {/* 1. 상단 글로벌 헤더 */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-250 bg-white px-4 py-2 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-md bg-rose-500 flex items-center justify-center text-white shadow-xs shrink-0">
-            <StrawberryIcon className="w-3.5 h-3.5 shrink-0" />
+        <div className="flex items-center gap-2 min-w-0 relative">
+          <div 
+            onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
+            className="flex items-center gap-2 px-2 py-1 rounded-lg border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer select-none"
+          >
+            <div className="w-7 h-7 rounded-md bg-rose-500 flex items-center justify-center text-white shadow-xs shrink-0">
+              <StrawberryIcon className="w-3.5 h-3.5 shrink-0" />
+            </div>
+            <div className="min-w-0 text-left">
+              <h1 className="text-xs font-bold text-slate-950 tracking-tight truncate flex items-center gap-1.5">
+                <span>{t.appTitle}</span>
+                <span className="text-[8px] text-slate-400">▼</span>
+              </h1>
+              <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">v1.0.1 (딸기노트) · 투자 노트</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-xs font-bold text-slate-950 tracking-tight truncate">{t.appTitle}</h1>
-            <p className="hidden sm:block text-[9px] text-slate-400 font-medium leading-none mt-0.5">{t.appSubtitle}</p>
-          </div>
+
+          {/* 좌측 로고 바로 밑에 열리는 버전 드롭다운 */}
+          {isVersionDropdownOpen && (
+            <div className="absolute left-0 top-11.5 bg-white border border-slate-200 shadow-lg rounded-lg py-1.5 w-44 z-50 animate-fadeIn">
+              <div className="block px-3 py-1.5 text-[11px] text-rose-600 bg-rose-50/30 font-bold border-l-2 border-rose-500">
+                v1.0.1 (딸기노트)
+              </div>
+              <a 
+                href="http://localhost:5174"
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                  e.preventDefault();
+                  const targetHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:5174'
+                    : 'https://ddalki-stock.vercel.app';
+                  window.location.href = targetHost;
+                }}
+                className="block px-3 py-1.5 text-[11px] text-slate-700 hover:bg-slate-50 font-medium border-t border-slate-100"
+              >
+                v2.0.0 (딸기주식)
+              </a>
+            </div>
+          )}
         </div>
 
         {/* 데스크탑용 선택된 필터 배지 리스트 */}

@@ -94,7 +94,7 @@ export default function App() {
         <div className="flex items-center gap-2 min-w-0 relative">
           <div 
             onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
-            className="flex items-center gap-2 px-2 py-1 rounded-lg border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer select-none"
+            className="flex items-center gap-2 px-1.5 py-0.5 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none"
           >
             <div className="w-7 h-7 rounded-md bg-rose-500 flex items-center justify-center text-white shadow-xs shrink-0">
               <StrawberryIcon className="w-3.5 h-3.5 shrink-0" />

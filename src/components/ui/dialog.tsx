@@ -12,6 +12,7 @@ interface DialogProps {
 
 export function Dialog({ isOpen, onClose, title, children, className }: DialogProps) {
   const [shouldRender, setShouldRender] = React.useState(isOpen)
+  const overlayRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     if (isOpen) {
@@ -25,10 +26,34 @@ export function Dialog({ isOpen, onClose, title, children, className }: DialogPr
     }
   }, [isOpen])
 
+  // 모바일 키보드 대응: fixed inset-0 은 레이아웃 뷰포트 기준이라 키보드가 뜨면
+  // 하단 시트가 키보드 뒤로 가려지며 레이아웃이 깨진다. VisualViewport(실제 보이는 영역)를
+  // 추적해 오버레이를 보이는 영역에 정확히 맞춰 이 문제를 방지한다.
+  React.useEffect(() => {
+    if (!isOpen) return
+    const vv = window.visualViewport
+    const el = overlayRef.current
+    if (!vv || !el) return
+
+    const update = () => {
+      el.style.height = `${vv.height}px`
+      el.style.transform = `translateY(${vv.offsetTop}px)`
+    }
+    update()
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+      el.style.height = ''
+      el.style.transform = ''
+    }
+  }, [isOpen])
+
   if (!shouldRender) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+    <div ref={overlayRef} className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       {/* 백드롭 */}
       <div 
         className={cn(

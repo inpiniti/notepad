@@ -21,15 +21,6 @@ import {
 } from 'lucide-react';
 import { translations, LangType } from '@/lib/translations';
 
-function StrawberryIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path d="M12 1.5C11.5 1.5 9.5 2.8 8.5 4.2C10.5 4.2 12 3.2 12 3.2C12 3.2 13.5 4.2 15.5 4.2C14.5 2.8 12.5 1.5 12 1.5Z" />
-      <path d="M12 22.5C7.2 22.5 4 15.5 4 10.5C4 7 7.5 5.5 12 5.5C16.5 5.5 20 7 20 10.5C20 15.5 16.8 22.5 12 22.5Z" />
-    </svg>
-  );
-}
-
 export default function App() {
   const {
     initialize,
@@ -96,10 +87,7 @@ export default function App() {
             onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
             className="flex items-center gap-2 px-1.5 py-0.5 rounded-lg hover:bg-slate-50 transition-all cursor-pointer select-none"
           >
-            <div className="w-7 h-7 rounded-md bg-rose-500 flex items-center justify-center text-white shadow-xs shrink-0">
-              <StrawberryIcon className="w-3.5 h-3.5 shrink-0" />
-            </div>
-            <div className="min-w-0 text-left">
+              <div className="min-w-0 text-left">
               <h1 className="text-xs font-bold text-slate-950 tracking-tight truncate flex items-center gap-1.5">
                 <span>{t.appTitle}</span>
                 <span className="text-[8px] text-slate-400">▼</span>

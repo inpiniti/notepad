@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useStore } from '@/lib/store';
 import { FilterPanel } from '@/components/filter-panel';
 import { NoteList } from '@/components/note-list';
@@ -112,9 +112,9 @@ export default function App() {
           {isVersionDropdownOpen && (
             <div className="absolute left-0 top-11.5 bg-white border border-slate-200 shadow-lg rounded-lg py-1.5 w-44 z-50 animate-fadeIn">
               <div className="block px-3 py-1.5 text-[11px] text-rose-600 bg-rose-50/30 font-bold border-l-2 border-rose-500">
-                v1.0.1 (딸기노트)
+                딸기노트
               </div>
-              <a 
+              <a
                 href="http://localhost:5174"
                 onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                   e.preventDefault();
@@ -125,7 +125,20 @@ export default function App() {
                 }}
                 className="block px-3 py-1.5 text-[11px] text-slate-700 hover:bg-slate-50 font-medium border-t border-slate-100"
               >
-                v2.0.0 (딸기주식)
+                딸기주식
+              </a>
+              <a
+                href="http://localhost:5175"
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                  e.preventDefault();
+                  const targetHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:5175'
+                    : 'https://ddalki-survival.vercel.app';
+                  window.location.href = targetHost;
+                }}
+                className="block px-3 py-1.5 text-[11px] text-slate-700 hover:bg-slate-50 font-medium border-t border-slate-100"
+              >
+                딸기 서바이벌
               </a>
             </div>
           )}
